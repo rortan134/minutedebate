@@ -1,0 +1,64 @@
+{
+    "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
+    "extends": ["ultracite/core", "ultracite/react", "ultracite/next"],
+    "formatter": {
+        "indentWidth": 4
+    },
+    "javascript": {
+        "formatter": {
+            "indentWidth": 4,
+            "quoteStyle": "double"
+        }
+    },
+    "json": {
+        "formatter": {
+            "indentWidth": 4
+        }
+    },
+    "assist": {
+        "actions": {
+            "source": {
+                "organizeImports": "off",
+                "useSortedAttributes": "on",
+                "useSortedKeys": "off"
+            }
+        }
+    },
+    "css": {
+        "parser": {
+            "tailwindDirectives": true
+        }
+    },
+    "linter": {
+        "rules": {
+            "recommended": true,
+            "suspicious": {
+                "noConsole": "off",
+                "noAlert": "off",
+                "noBitwiseOperators": "off"
+            },
+            "style": {
+                "noEnum": "off",
+                "noNestedTernary": "off",
+                "noMagicNumbers": "off",
+                "useConsistentTypeDefinitions": "off",
+                "useUnifiedTypeSignatures": "off"
+            },
+            "complexity": {
+                "noExcessiveCognitiveComplexity": "off",
+                "noExcessiveLinesPerFunction": "off",
+                "noImportantStyles": "off"
+            },
+            "performance": {
+                "noNamespaceImport": "off",
+                "noBarrelFile": "off"
+            },
+            "correctness": {
+                "noUnusedVariables": "off"
+            },
+            "a11y": {
+                "noSvgWithoutTitle": "off"
+            }
+        }
+    }
+}

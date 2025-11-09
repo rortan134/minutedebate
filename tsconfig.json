@@ -1,0 +1,66 @@
+{
+    "$schema": "https://json.schemastore.org/tsconfig",
+    "compilerOptions": {
+        /* Base Options: */
+        "target": "es2022",
+        "moduleDetection": "force",
+        "allowJs": true,
+        "inlineSources": false,
+        "isolatedModules": true,
+        "verbatimModuleSyntax": true,
+        "esModuleInterop": true,
+        "skipLibCheck": true,
+        "declarationMap": false,
+        "composite": false,
+
+        /* Strictness */
+        "checkJs": true,
+        "strict": true,
+        "alwaysStrict": true,
+        "useDefineForClassFields": true,
+        "noImplicitAny": true,
+        "allowUnreachableCode": false,
+        "allowUnusedLabels": false,
+        "exactOptionalPropertyTypes": false,
+        "noFallthroughCasesInSwitch": true,
+        "noUnusedParameters": false,
+        "noUnusedLocals": false,
+        "noUncheckedIndexedAccess": true,
+        "noImplicitThis": true,
+        "noImplicitOverride": true,
+        "noEmitOnError": true,
+        "strictNullChecks": true,
+        "strictFunctionTypes": true,
+        "strictPropertyInitialization": true,
+        "allowSyntheticDefaultImports": true,
+        "useUnknownInCatchVariables": true,
+        "preserveConstEnums": true,
+        "allowImportingTsExtensions": true,
+
+        /* Bundled projects */
+        "removeComments": true,
+        "lib": ["dom", "dom.iterable", "ESNext"],
+        "noEmit": true,
+        "module": "ESNext",
+        "moduleResolution": "Bundler",
+        "jsx": "react-jsx",
+        "resolveJsonModule": true,
+        "resolvePackageJsonExports": true,
+        "preserveWatchOutput": true,
+        "incremental": true,
+        /* Path Aliases */
+
+        "baseUrl": ".",
+        "paths": { "@/*": ["./*"] },
+        "plugins": [{ "name": "next" }]
+    },
+    "include": [
+        "**/*.d.ts",
+        "**/*.mdx",
+        "**/*.ts",
+        "**/*.tsx",
+        ".next/types/**/*.ts",
+        ".next/dev/types/**/*.ts"
+    ],
+    "exclude": ["node_modules", ".next", "prisma"]
+}
