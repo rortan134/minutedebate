@@ -1,8 +1,8 @@
 "use client";
 
-import { AnimateHeight } from "@/components/animate-height";
-import { AsciiOne } from "@/components/ascii-one";
-import { Spinner } from "@/components/spinner";
+import { AnimateHeight } from "@/components/ui/animate-height";
+import { AsciiOne } from "@/components/ui/ascii-one";
+import { Spinner } from "@/components/ui/spinner";
 import {
     Dialog,
     DialogClose,
@@ -30,7 +30,7 @@ import { api } from "../convex/_generated/api";
 import { getDailyPack, TOPIC_PACKS } from "../convex/topic_packs";
 import { getOrCreatePlayerId } from "../lib/player-id";
 import { useNow } from "../lib/use-now";
-import StarBorder from "./StarBorder";
+import StarBorder from "./ui/star-border";
 
 const QUEUE_OWNER_KEY = "minutedebate_queue_owner";
 const QUEUE_STARTED_AT_KEY = "minutedebate_queue_started_at";
@@ -279,7 +279,7 @@ export default function Lobby() {
                                         <Tooltip
                                             key={`${entry.achievementId}-${entry.unlockedAt}`}
                                         >
-                                            <TooltipTrigger className="bg-background/60 cursor-help inline-flex items-center gap-1 rounded-full px-3 py-1 text-foreground">
+                                            <TooltipTrigger className="bg-background/60 cursor-help inline-flex items-center gap-1 rounded-full px-3 py-1 text-foreground transition-colors hover:bg-background/80 active:bg-background active:scale-[0.95]">
                                                 <span>{meta.icon}</span>
                                                 <span>{meta.title}</span>
                                             </TooltipTrigger>
@@ -314,7 +314,7 @@ export default function Lobby() {
                                     ) : (
                                         <StarBorder
                                             as="button"
-                                            className="relative w-full cursor-pointer overflow-hidden bg-slate-800 px-6 py-4 font-semibold uppercase text-foreground text-lg hover:bg-slate-900 disabled:opacity-50"
+                                            className="relative w-full cursor-pointer overflow-hidden bg-slate-800 px-6 py-4 font-semibold uppercase text-foreground text-lg transition-colors hover:bg-slate-900 active:bg-slate-950 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
                                             disabled={isJoining}
                                             onClick={
                                                 isQueued
@@ -345,11 +345,11 @@ export default function Lobby() {
                                     </p>
                                 ) : resumeHref ? (
                                     <a
-                                        className="inline-flex relative w-full items-center justify-center gap-1 text-center cursor-pointer font-semibold text-sm uppercase text-foreground disabled:opacity-50"
+                                        className="group inline-flex relative w-full items-center justify-center gap-1 text-center cursor-pointer font-semibold text-sm uppercase text-foreground transition-colors hover:text-primary active:text-primary/80 active:scale-[0.98] disabled:opacity-50"
                                         href={resumeHref}
                                     >
                                         <span>{resumeLabel}</span>
-                                        <ArrowUpRight className="size-4 inline-block" />
+                                        <ArrowUpRight className="size-4 inline-block transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
                                     </a>
                                 ) : null}
                             </FrameHeader>
@@ -359,7 +359,7 @@ export default function Lobby() {
                         <DialogTrigger
                             render={
                                 <button
-                                    className="w-full rounded-full border border-foreground/50 px-5 py-3 text-center font-semibold text-muted-foreground text-sm uppercase tracking-widest transition hover:border-foreground hover:text-foreground"
+                                    className="w-full rounded-full border border-foreground/50 px-5 py-3 text-center font-semibold text-muted-foreground text-sm uppercase tracking-widest transition-colors hover:border-foreground hover:text-foreground hover:bg-background/20 active:bg-background/30 active:border-foreground/80 active:scale-[0.98]"
                                     type="button"
                                 >
                                     How To Play
@@ -465,7 +465,7 @@ export default function Lobby() {
                                 <DialogClose
                                     render={
                                         <button
-                                            className="rounded-full border border-border/50 px-4 py-2 text-muted-foreground text-xs uppercase transition hover:bg-background/60 hover:text-foreground"
+                                            className="rounded-full border border-border/50 px-4 py-2 text-muted-foreground text-xs uppercase transition-colors hover:bg-background/60 hover:text-foreground hover:border-border active:bg-background/80 active:scale-[0.96]"
                                             type="button"
                                         >
                                             Close
@@ -481,8 +481,11 @@ export default function Lobby() {
                             ∞
                         </span>
                         <div className="h-px flex-1 bg-foreground" />
-                        <span className="font-mono text-[9px] text-foreground uppercase hover:underline">
-                            <a href="https://minutedebate.com">
+                        <span className="font-mono text-[9px] text-foreground uppercase">
+                            <a
+                                className="transition-colors hover:underline hover:text-primary active:text-primary/80 active:scale-[0.98]"
+                                href="https://minutedebate.com"
+                            >
                                 minutedebate.com
                             </a>
                         </span>
