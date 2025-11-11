@@ -3,16 +3,29 @@
 import Postgame from "@/components/postgame";
 import type { Id } from "@/convex/_generated/dataModel";
 import { getOrCreatePlayerId } from "@/lib/player-id";
-import { Suspense, use } from "react";
+import { Suspense, use, useState } from "react";
+
+function PostgameWrapper({
+    params,
+}: {
+    params: Promise<{ matchId: string }>;
+}) {
+    const resolvedParams = use(params);
+    const [playerId] = useState(() => getOrCreatePlayerId());
+
+    return (
+        <Postgame
+            matchId={resolvedParams.matchId as Id<"matches">}
+            playerId={playerId}
+        />
+    );
+}
 
 export default function ResultsPage({
     params,
 }: {
     params: Promise<{ matchId: string }>;
 }) {
-    const resolvedParams = use(params);
-    const playerId = getOrCreatePlayerId();
-
     return (
         <Suspense
             fallback={
@@ -23,10 +36,7 @@ export default function ResultsPage({
                 </div>
             }
         >
-            <Postgame
-                matchId={resolvedParams.matchId as Id<"matches">}
-                playerId={playerId}
-            />
+            <PostgameWrapper params={params} />
         </Suspense>
     );
 }
