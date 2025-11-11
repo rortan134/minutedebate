@@ -38,6 +38,9 @@
                 "noMagicNumbers": "off",
                 "useConsistentTypeDefinitions": "off"
             },
+            "nursery": {
+                "useSortedClasses": "off"
+            },
             "complexity": {
                 "noExcessiveCognitiveComplexity": "off",
                 "noExcessiveLinesPerFunction": "off",

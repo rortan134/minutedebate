@@ -6,6 +6,7 @@ import { useMutation, useQuery } from "convex/react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { api } from "../convex/_generated/api";
 import type { Id } from "../convex/_generated/dataModel";
+import { TOPIC_PACKS } from "../convex/topic_packs";
 import {
     calculateNetChars,
     filterFiller,
@@ -13,6 +14,168 @@ import {
 } from "../lib/cadence";
 import { getOrCreatePlayerId } from "../lib/player-id";
 import { useNow } from "../lib/use-now";
+import { PackFocusCard } from "./pack-focus-card";
+import { PauseBudgetMeter } from "./pause-budget-meter";
+
+const PAUSE_BUDGET_CAP_MS = 4000;
+
+type MatchPhaseKey =
+    | "opening1"
+    | "opening2"
+    | "burst1"
+    | "burst2"
+    | "burst3"
+    | "burst4"
+    | "summation1"
+    | "summation2"
+    | "judging"
+    | "finished";
+
+type PhaseGuidance = {
+    readonly active: {
+        readonly headline: string;
+        readonly body: string;
+    };
+    readonly waiting: {
+        readonly headline: string;
+        readonly body: string;
+    };
+};
+
+const DEFAULT_GUIDANCE: PhaseGuidance = {
+    active: {
+        headline: "Advance the argument",
+        body: "Keep the thread tight: add warranted claims, no filler.",
+    },
+    waiting: {
+        headline: "Scout their line",
+        body: "Track the structure, prep the refutation.",
+    },
+};
+
+const PHASE_GUIDANCE: Record<MatchPhaseKey, PhaseGuidance> = {
+    opening1: {
+        active: {
+            headline: "Seize the frame",
+            body: "Lead with a dominant definition or scope-set to claim the ground.",
+        },
+        waiting: {
+            headline: "Audit their definition",
+            body: "Listen for how they carve the topic—plan the steal or counter-scope.",
+        },
+    },
+    opening2: {
+        active: {
+            headline: "Counter-frame fast",
+            body: "Accept or redefine on your terms before the clash locks in.",
+        },
+        waiting: {
+            headline: "Bank their framing",
+            body: "Note every premise they lean on; you'll need them in bursts.",
+        },
+    },
+    burst1: {
+        active: {
+            headline: "Hit a burden shift",
+            body: "Press a missing warrant and make them carry the proof.",
+        },
+        waiting: {
+            headline: "Fortify weak links",
+            body: "Identify claims still lacking warrants so you can patch or pivot.",
+        },
+    },
+    burst2: {
+        active: {
+            headline: "Refute cleanly",
+            body: "Quote, clash, and collapse their last claim with receipts.",
+        },
+        waiting: {
+            headline: "Track loose ends",
+            body: "Log unanswered attacks so you can close them later.",
+        },
+    },
+    burst3: {
+        active: {
+            headline: "Drive the wedge",
+            body: "Extend winning lines and punish the contradiction you exposed.",
+        },
+        waiting: {
+            headline: "Spot overreach",
+            body: "Listen for leaps you can expose on your next beat.",
+        },
+    },
+    burst4: {
+        active: {
+            headline: "Lock their burden",
+            body: "Loop back to their thesis and show it still collapses.",
+        },
+        waiting: {
+            headline: "Prep the closer",
+            body: "Order your strongest responses; summations need clarity, not new ground.",
+        },
+    },
+    summation1: {
+        active: {
+            headline: "Weigh the round",
+            body: "No new claims—stack impacts, contrast worlds, and narrate why you win.",
+        },
+        waiting: {
+            headline: "Listen for weighing",
+            body: "Note what they prioritize so you can flip or pre-empt it.",
+        },
+    },
+    summation2: {
+        active: {
+            headline: "Seal the throughline",
+            body: "Tie your story together without dumping new content.",
+        },
+        waiting: {
+            headline: "Catch the drop",
+            body: "Every silence is a concession—record them for results.",
+        },
+    },
+    judging: {
+        active: {
+            headline: "Judging in progress",
+            body: "AI judge is grading logic, evidence, relevance, clarity, civility.",
+        },
+        waiting: {
+            headline: "Judging in progress",
+            body: "Hold tight while the judge names the decisive moves.",
+        },
+    },
+    finished: {
+        active: {
+            headline: "Match complete",
+            body: "Head to the results screen for breakdowns and next steps.",
+        },
+        waiting: {
+            headline: "Match complete",
+            body: "Head to the results screen for breakdowns and next steps.",
+        },
+    },
+};
+
+const PHASE_LABELS: Record<MatchPhaseKey, string> = {
+    opening1: "Opening Statement (Player 1)",
+    opening2: "Opening Statement (Player 2)",
+    burst1: "Burst 1 (Player 1)",
+    burst2: "Burst 2 (Player 2)",
+    burst3: "Burst 3 (Player 1)",
+    burst4: "Burst 4 (Player 2)",
+    summation1: "Summation (Player 1)",
+    summation2: "Summation (Player 2)",
+    judging: "Judging",
+    finished: "Match Finished",
+};
+
+function resolveGuidance(
+    phase: MatchPhaseKey,
+    isMyTurn: boolean
+): PhaseGuidance["active"] | PhaseGuidance["waiting"] {
+    const copy = PHASE_GUIDANCE[phase] ?? DEFAULT_GUIDANCE;
+    return isMyTurn ? copy.active : copy.waiting;
+}
 
 interface MatchRoomProps {
     matchId: Id<"matches">;
@@ -89,7 +252,10 @@ export default function MatchRoom({
             return null;
         }
         const playerIsFirst = match.player1Id === playerDocId;
-        const phasePlayerMap: Record<string, "player1" | "player2"> = {
+        const phasePlayerMap: Record<
+            MatchPhaseKey,
+            "player1" | "player2" | null
+        > = {
             opening1: "player1",
             opening2: "player2",
             burst1: "player1",
@@ -98,11 +264,17 @@ export default function MatchRoom({
             burst4: "player2",
             summation1: "player1",
             summation2: "player2",
+            judging: null,
+            finished: null,
         };
-        const expectedPlayer = phasePlayerMap[match.phase];
+        const resolvedPhase = (match.phase ?? "opening1") as MatchPhaseKey;
+        const expectedPlayer = phasePlayerMap[resolvedPhase];
         const turnBelongsToCurrentUser =
-            (expectedPlayer === "player1" && playerIsFirst) ||
-            (expectedPlayer === "player2" && !playerIsFirst);
+            expectedPlayer === "player1"
+                ? playerIsFirst
+                : expectedPlayer === "player2"
+                  ? !playerIsFirst
+                  : false;
         const availablePauseBudget = playerIsFirst
             ? match.player1PauseBudget
             : match.player2PauseBudget;
@@ -110,6 +282,7 @@ export default function MatchRoom({
             isPlayer1: playerIsFirst,
             isMyTurn: turnBelongsToCurrentUser,
             pauseBudget: availablePauseBudget,
+            phaseKey: resolvedPhase,
         };
     }, [match, playerDocId]);
 
@@ -196,28 +369,24 @@ export default function MatchRoom({
         );
     }
 
-    const { isPlayer1, isMyTurn, pauseBudget } = derivedState;
+    const { isPlayer1, isMyTurn, pauseBudget, phaseKey } = derivedState;
     const myStance = isPlayer1 ? match.player1Stance : match.player2Stance;
     const opponentStance = isPlayer1
         ? match.player2Stance
         : match.player1Stance;
     const timeRemaining = Math.max(0, match.phaseEndTime - now);
+    const packInfo =
+        TOPIC_PACKS[match.topicPack as keyof typeof TOPIC_PACKS] ?? null;
+    const moveGoals = packInfo?.moveGoals ?? [];
+    const guidanceCopy = resolveGuidance(phaseKey, isMyTurn);
+    const guidanceKey = `${phaseKey}-${isMyTurn ? "active" : "waiting"}`;
 
     const formatTime = (ms: number) => {
         const seconds = Math.ceil(ms / 1000);
         return `${seconds}s`;
     };
 
-    const phaseLabels: Record<string, string> = {
-        opening1: "Opening Statement (Player 1)",
-        opening2: "Opening Statement (Player 2)",
-        burst1: "Burst 1 (Player 1)",
-        burst2: "Burst 2 (Player 2)",
-        burst3: "Burst 3 (Player 1)",
-        burst4: "Burst 4 (Player 2)",
-        summation1: "Summation (Player 1)",
-        summation2: "Summation (Player 2)",
-    };
+    const phaseLabel = PHASE_LABELS[phaseKey] ?? "Debate";
     const composeInputId = `compose-${String(matchId)}`;
 
     return (
@@ -238,7 +407,7 @@ export default function MatchRoom({
                                     <span>{formatTime(timeRemaining)}</span>
                                 </div>
                                 <h1 className="font-bold text-3xl uppercase lg:text-4xl">
-                                    {phaseLabels[match.phase]}
+                                    {phaseLabel}
                                 </h1>
                                 <p className="max-w-readable text-muted-foreground">
                                     {match.topic}
@@ -247,6 +416,12 @@ export default function MatchRoom({
                             <div className="flex flex-col items-end gap-2 text-right">
                                 <span className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-background/40 px-4 py-2 text-muted-foreground text-xs uppercase tracking-[0.3em]">
                                     Oxford Mode
+                                    {packInfo ? (
+                                        <>
+                                            <span className="h-3 w-px bg-border/60" />
+                                            <span>{packInfo.name}</span>
+                                        </>
+                                    ) : null}
                                 </span>
                                 <div className="flex items-center gap-3 text-muted-foreground text-sm">
                                     <span className="font-medium text-foreground">
@@ -300,19 +475,9 @@ export default function MatchRoom({
                                     Debate Log
                                 </h2>
                             </div>
-                            <div className="flex items-center gap-3 rounded-full border border-border/40 bg-background/40 px-4 py-2 text-muted-foreground text-xs uppercase tracking-[0.3em]">
-                                <span>Cadence</span>
-                                <div className="flex h-2 w-32 items-center rounded-full bg-border/60">
-                                    <div
-                                        className="h-full rounded-full bg-success transition-all"
-                                        style={{ width: `${cadenceSignal}%` }}
-                                    />
-                                </div>
-                                <span>{Math.round(pauseBudget / 1000)}s</span>
-                            </div>
                         </header>
 
-                        <div className="relative max-h-[32rem] space-y-3 overflow-y-auto rounded-xl border border-border/30 bg-background/30 p-4 shadow-inner">
+                        <div className="relative max-h-128 space-y-3 overflow-y-auto rounded-xl border border-border/30 bg-background/30 p-4 shadow-inner">
                             {messages && messages.length > 0 ? (
                                 messages.map(
                                     (msg: {
@@ -360,7 +525,34 @@ export default function MatchRoom({
                         </div>
                     </section>
 
-                    <section className="space-y-3 rounded-2xl border border-border/40 bg-card/30 p-6 shadow-lg backdrop-blur">
+                    <section className="space-y-4 rounded-2xl border border-border/40 bg-card/30 p-6 shadow-lg backdrop-blur">
+                        <div
+                            className={cn(
+                                "rounded-xl border px-4 py-4 transition-all duration-300",
+                                isMyTurn
+                                    ? "border-primary/50 bg-primary/10 text-foreground shadow-sm"
+                                    : "border-border/50 bg-background/50 text-muted-foreground"
+                            )}
+                            key={guidanceKey}
+                        >
+                            <p className="text-xs uppercase tracking-[0.35em]">
+                                {isMyTurn ? "Your move" : "Hold position"}
+                            </p>
+                            <h3 className="mt-2 font-semibold text-lg uppercase tracking-[0.25em]">
+                                {guidanceCopy.headline}
+                            </h3>
+                            <p className="mt-1 text-muted-foreground text-sm leading-relaxed">
+                                {guidanceCopy.body}
+                            </p>
+                        </div>
+
+                        <PauseBudgetMeter
+                            cadenceSignal={cadenceSignal}
+                            isMyTurn={isMyTurn && match.status === "active"}
+                            maxBudgetMs={PAUSE_BUDGET_CAP_MS}
+                            pauseBudgetMs={pauseBudget}
+                        />
+
                         {isMyTurn && match.status === "active" ? (
                             <form className="space-y-3" onSubmit={handleSubmit}>
                                 <label
@@ -398,60 +590,54 @@ export default function MatchRoom({
                 </section>
 
                 <aside className="col-span-full flex flex-col gap-4 lg:col-span-4">
-                    <div className="rounded-2xl border border-border/40 bg-card/30 p-6 shadow-lg backdrop-blur">
-                        <p className="text-muted-foreground text-xs uppercase tracking-[0.35em]">
-                            Match Timeline
-                        </p>
-                        <div className="mt-4 space-y-3 text-muted-foreground text-sm">
-                            {Object.entries(phaseLabels).map(([key, label]) => {
-                                const isCurrent = match.phase === key;
-                                return (
-                                    <div
-                                        className={cn(
-                                            "flex items-center justify-between rounded-lg border px-3 py-2 text-xs uppercase tracking-[0.3em]",
-                                            isCurrent
-                                                ? "border-primary/60 bg-primary/10 text-foreground"
-                                                : "border-border/40 bg-background/30 text-muted-foreground"
-                                        )}
-                                        key={key}
-                                    >
-                                        <span>{label}</span>
-                                        {isCurrent ? (
-                                            <span className="font-semibold text-foreground">
-                                                Active
-                                            </span>
-                                        ) : null}
-                                    </div>
-                                );
-                            })}
-                        </div>
-                    </div>
+                    {packInfo ? (
+                        <PackFocusCard
+                            currentPhase={phaseKey}
+                            moveGoals={moveGoals}
+                            packName={packInfo.name}
+                        />
+                    ) : null}
 
                     <div className="rounded-2xl border border-border/40 bg-card/30 p-6 shadow-lg backdrop-blur">
                         <p className="text-muted-foreground text-xs uppercase tracking-[0.35em]">
-                            Opponent Profile
+                            Live Stats
                         </p>
-                        <div className="mt-4 space-y-2 text-muted-foreground text-sm">
-                            <p>
-                                Position:{" "}
-                                <span className="font-semibold text-foreground">
-                                    {opponentStance}
+                        <div className="mt-4 space-y-3 text-muted-foreground text-sm">
+                            <div className="flex items-center justify-between rounded-lg border border-border/40 bg-background/40 px-3 py-2">
+                                <span className="text-muted-foreground uppercase tracking-[0.3em]">
+                                    Your net chars
                                 </span>
-                            </p>
-                            <p className="text-muted-foreground text-xs uppercase tracking-[0.35em]">
-                                Net characters:{" "}
-                                <span className="text-foreground">
+                                <span className="font-semibold text-foreground">
+                                    {isPlayer1
+                                        ? match.player1NetChars
+                                        : match.player2NetChars}
+                                </span>
+                            </div>
+                            <div className="flex items-center justify-between rounded-lg border border-border/40 bg-background/40 px-3 py-2">
+                                <span className="text-muted-foreground uppercase tracking-[0.3em]">
+                                    Opponent net chars
+                                </span>
+                                <span className="font-semibold text-foreground">
                                     {isPlayer1
                                         ? match.player2NetChars
                                         : match.player1NetChars}
                                 </span>
-                            </p>
+                            </div>
+                            <div className="flex items-center justify-between rounded-lg border border-border/40 bg-background/40 px-3 py-2">
+                                <span className="text-muted-foreground uppercase tracking-[0.3em]">
+                                    Pause left
+                                </span>
+                                <span className="font-semibold text-foreground">
+                                    {(pauseBudget / 1000).toFixed(1)}s
+                                </span>
+                            </div>
                         </div>
                     </div>
 
                     <div className="rounded-2xl border border-border/40 bg-card/20 p-6 text-muted-foreground text-xs uppercase tracking-[0.35em] shadow-lg backdrop-blur">
-                        Remember: cadence gating pauses the clock when you
-                        advance the argument. Keep the signal high.
+                        Typing pauses your clock only while you advance the
+                        line. Cadence gaps over 4 seconds burn time—keep the
+                        signal flowing.
                     </div>
                 </aside>
             </main>

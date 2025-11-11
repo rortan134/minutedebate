@@ -8,6 +8,7 @@
  * @module
  */
 
+import type * as achievements from "../achievements.js";
 import type * as judging from "../judging.js";
 import type * as judging_action from "../judging_action.js";
 import type * as matchmaking from "../matchmaking.js";
@@ -22,6 +23,7 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
+  achievements: typeof achievements;
   judging: typeof judging;
   judging_action: typeof judging_action;
   matchmaking: typeof matchmaking;

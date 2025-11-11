@@ -14,14 +14,23 @@ import {
     DialogTrigger,
 } from "@/components/ui/dialog";
 import { Frame, FrameHeader, FramePanel } from "@/components/ui/frame";
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { useInterval } from "@/hooks/use-interval";
+import { getAchievementMeta } from "@/lib/achievements-meta";
 import { cn } from "@/lib/cn";
 import { useMutation, useQuery } from "convex/react";
+import { ArrowUpRight } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { api } from "../convex/_generated/api";
 import { getDailyPack, TOPIC_PACKS } from "../convex/topic_packs";
 import { getOrCreatePlayerId } from "../lib/player-id";
 import { useNow } from "../lib/use-now";
+import StarBorder from "./StarBorder";
 
 const QUEUE_OWNER_KEY = "minutedebate_queue_owner";
 const QUEUE_STARTED_AT_KEY = "minutedebate_queue_started_at";
@@ -32,6 +41,10 @@ export default function Lobby() {
     const leaveQueue = useMutation(api.matchmaking.leaveQueue);
     const playerMatch = useQuery(api.matchmaking.getPlayerMatch, {
         playerId,
+    });
+    const achievements = useQuery(api.achievements.listForPlayer, {
+        playerId,
+        limit: 6,
     });
     const [isJoining, setIsJoining] = useState(false);
     const [queueStartedAt, setQueueStartedAt] = useState<number | null>(() => {
@@ -58,6 +71,20 @@ export default function Lobby() {
 
     const dailyPack = getDailyPack();
     const packInfo = TOPIC_PACKS[dailyPack];
+    type TickerAchievement = {
+        readonly achievementId: string;
+        readonly unlockedAt: number;
+    };
+
+    const achievementsTicker: TickerAchievement[] = achievements?.recent
+        ? achievements.recent
+              .slice(0, 4)
+              .map(({ achievementId, unlockedAt }) => ({
+                  achievementId,
+                  unlockedAt,
+              }))
+        : [];
+    const totalAchievements = achievements?.totalUnlocked ?? 0;
 
     const isQueued = playerMatch?.status === "waiting";
 
@@ -216,8 +243,8 @@ export default function Lobby() {
                         <h1 className="font-bold text-5xl text-foreground uppercase">
                             One minute. One topic. One winner.
                         </h1>
-                        <h2 className="mt-1 font-semibold text-muted-foreground text-xl uppercase">
-                            Put your debating skills to the test - Play now!
+                        <h2 className="mt-2 font-semibold text-muted-foreground text-xl uppercase">
+                            Put your debating skills to the test — Play now!
                         </h2>
                     </div>
                     <span className="font-mono text-[8px] text-foreground/60 lg:text-[10px]">
@@ -234,145 +261,211 @@ export default function Lobby() {
                             )
                         )}
                     </div>
-                    <h2 className="my-3 font-semibold text-2xl text-foreground">
+                    <h2 className="mt-6 font-semibold uppercase text-xl text-foreground">
                         <span className="text-muted-foreground">
                             Today&apos;s Pack:{" "}
                         </span>
                         {packInfo.name}
                     </h2>
-                    {/* <div className="mb-2 rounded-lg">
-                        <h3 className="mb-2 font-semibold text-slate-700">
-                            Oxford Mode
-                        </h3>
-                        <ul className="space-y-2 text-slate-600 text-sm">
-                            <li>• 15s opening statements (each player)</li>
-                            <li>• 4 alternating 10s bursts</li>
-                            <li>• 10s final summation (each player)</li>
-                            <li>
-                                • Judge evaluates on logic, evidence, relevance,
-                                clarity, and civility.
-                            </li>
-                        </ul>
-                    </div> */}
+                    {achievementsTicker.length > 0 ? (
+                        <TooltipProvider>
+                            <div className="bg-card/30 border border-border/50 flex flex-wrap gap-2 items-center mt-3 rounded-full px-4 py-2 text-muted-foreground text-xs uppercase">
+                                <span>Recent achievements</span>
+                                {achievementsTicker.map((entry) => {
+                                    const meta = getAchievementMeta(
+                                        entry.achievementId
+                                    );
+                                    return (
+                                        <Tooltip
+                                            key={`${entry.achievementId}-${entry.unlockedAt}`}
+                                        >
+                                            <TooltipTrigger className="bg-background/60 cursor-help inline-flex items-center gap-1 rounded-full px-3 py-1 text-foreground">
+                                                <span>{meta.icon}</span>
+                                                <span>{meta.title}</span>
+                                            </TooltipTrigger>
+                                            <TooltipContent side="bottom">
+                                                {meta.description}
+                                            </TooltipContent>
+                                        </Tooltip>
+                                    );
+                                })}
+                                <span className="ml-auto text-[10px] text-muted-foreground uppercase tracking-[0.4em]">
+                                    Total {totalAchievements}
+                                </span>
+                            </div>
+                        </TooltipProvider>
+                    ) : null}
                     <AnimateHeight>
                         <Frame>
-                            <FramePanel className="rounded-b-none! border-0! p-0!">
+                            <FramePanel className="border-0! p-0! rounded-b-none!">
                                 <div className="flex flex-col gap-3">
                                     {pendingMatchId ? (
                                         <div className="relative overflow-hidden rounded-2xl border border-border/60 bg-background/60 p-6 text-center shadow-lg backdrop-blur">
-                                            <div className="mb-3 flex justify-center">
-                                                <Spinner className="size-12 text-primary opacity-80" />
-                                            </div>
                                             <p className="text-muted-foreground text-xs uppercase tracking-[0.35em]">
-                                                Joining match
+                                                Joining match...
                                             </p>
                                             <p className="font-bold text-3xl text-foreground">
                                                 {countdown}
                                             </p>
                                             <p className="text-muted-foreground text-sm">
-                                                Get ready—debate begins shortly.
+                                                Get ready — debate begins now.
                                             </p>
                                         </div>
-                                    ) : isQueued ? (
-                                        <>
-                                            <button
-                                                className="w-full rounded-xl bg-slate-800 px-6 py-4 font-semibold text-foreground text-lg"
-                                                disabled
-                                                type="button"
-                                            >
-                                                Finding opponent...
-                                            </button>
-                                            <button
-                                                className="w-full rounded-lg text-center font-semibold text-foreground text-lg disabled:opacity-50"
-                                                disabled={isJoining}
-                                                onClick={handleLeaveQueue}
-                                                type="button"
-                                            >
-                                                Stop Searching
-                                            </button>
-                                            <p className="text-center text-slate-500 text-sm">
-                                                Waiting {waitingSeconds}s
-                                            </p>
-                                        </>
                                     ) : (
-                                        <button
-                                            className="relative w-full cursor-pointer overflow-hidden rounded-xl bg-slate-800 px-6 py-4 font-semibold text-foreground text-lg hover:bg-slate-900 disabled:opacity-50"
+                                        <StarBorder
+                                            as="button"
+                                            className="relative w-full cursor-pointer overflow-hidden bg-slate-800 px-6 py-4 font-semibold uppercase text-foreground text-lg hover:bg-slate-900 disabled:opacity-50"
                                             disabled={isJoining}
-                                            onClick={handleJoinQueue}
+                                            onClick={
+                                                isQueued
+                                                    ? handleLeaveQueue
+                                                    : handleJoinQueue
+                                            }
                                             type="button"
                                         >
                                             <span className="flex flex-col gap-0.5">
-                                                {isJoining
+                                                {isJoining || isQueued
                                                     ? "Finding opponent..."
                                                     : "Play • Join Queue"}
                                                 <span className="text-muted-foreground text-sm">
                                                     Oxford Mode
                                                 </span>
                                             </span>
-                                            <div className="animate-shine" />
-                                        </button>
+                                            {isJoining || isQueued ? null : (
+                                                <div className="animate-shine" />
+                                            )}
+                                        </StarBorder>
                                     )}
                                 </div>
                             </FramePanel>
-                            {resumeHref ? (
-                                <FrameHeader>
+                            <FrameHeader>
+                                {isQueued ? (
+                                    <p className="text-center text-muted-foreground text-sm">
+                                        Waiting {waitingSeconds}s
+                                    </p>
+                                ) : resumeHref ? (
                                     <a
-                                        className="relative w-full cursor-pointer font-semibold text-lg text-white disabled:opacity-50"
+                                        className="inline-flex relative w-full items-center justify-center gap-1 text-center cursor-pointer font-semibold text-sm uppercase text-foreground disabled:opacity-50"
                                         href={resumeHref}
                                     >
-                                        {resumeLabel}
+                                        <span>{resumeLabel}</span>
+                                        <ArrowUpRight className="size-4 inline-block" />
                                     </a>
-                                </FrameHeader>
-                            ) : null}
+                                ) : null}
+                            </FrameHeader>
                         </Frame>
                     </AnimateHeight>
                     <Dialog>
                         <DialogTrigger
                             render={
                                 <button
-                                    className="w-full rounded-full border border-slate-200 px-5 py-3 text-center font-semibold text-muted-foreground text-sm uppercase tracking-[0.35em] transition hover:border-slate-300 hover:text-foreground"
+                                    className="w-full rounded-full border border-foreground/50 px-5 py-3 text-center font-semibold text-muted-foreground text-sm uppercase tracking-widest transition hover:border-foreground hover:text-foreground"
                                     type="button"
                                 >
                                     How To Play
                                 </button>
                             }
                         />
-                        <DialogPopup className="max-w-lg">
+                        <DialogPopup>
                             <DialogHeader>
                                 <DialogTitle>
-                                    How MinuteDebate Works
+                                    Master the art of structured debate
                                 </DialogTitle>
                                 <DialogDescription>
-                                    Oxford cadence, AI judging, and cadence
-                                    gating basics.
+                                    Join anonymous 1v1 debating matches where an
+                                    AI judge evaluates your reasoning across
+                                    five axes, awarding skill-based achievements
+                                    for distinctive moves. Every verdict
+                                    provides detailed feedback to sharpen your
+                                    debating skills.
                                 </DialogDescription>
                             </DialogHeader>
-                            <ol className="list-decimal space-y-3 pl-5 text-muted-foreground text-sm">
-                                <li>
-                                    <span className="font-semibold text-foreground">
-                                        Oxford cadence
-                                    </span>{" "}
-                                    — 15s openings, four 10s bursts, 10s
-                                    summations.
-                                </li>
-                                <li>
-                                    Cadence gating pauses the clock when you add
-                                    new signal; idling burns your pause budget.
-                                </li>
-                                <li>
-                                    AI judge scores logic, evidence, relevance,
-                                    clarity, civility, and names standout moves.
-                                </li>
-                                <li>
-                                    Win by keeping your throughline sharp and
-                                    responding cleanly to burden shifts.
-                                </li>
-                            </ol>
+                            <div className="space-y-4">
+                                <div className="space-y-3">
+                                    <div>
+                                        <h3 className="mb-2 font-semibold text-foreground text-sm uppercase">
+                                            Oxford Cadence Format
+                                        </h3>
+                                        <p className="text-muted-foreground text-sm leading-relaxed">
+                                            Each match follows a strict timing
+                                            structure: 15-second opening
+                                            statements for each player, followed
+                                            by four alternating 10-second bursts
+                                            where you respond and counter, and
+                                            finally 10-second summations to
+                                            crystallize your position. Total
+                                            match time: exactly one minute.
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <h3 className="mb-2 font-semibold text-foreground text-sm uppercase">
+                                            Cadence Gating System
+                                        </h3>
+                                        <p className="text-muted-foreground text-sm leading-relaxed">
+                                            Your clock pauses only while you're
+                                            actively typing at a steady cadence
+                                            (≥1 character every ~350ms). Stop
+                                            typing for more than 600–800ms, and
+                                            your time resumes. You get a hard 4s
+                                            pause reserve—once exhausted,
+                                            thinking burns time no matter what.
+                                            Keep the signal flowing to maximize
+                                            your argument time.
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <h3 className="mb-2 font-semibold text-foreground text-sm uppercase">
+                                            AI Judge Evaluation
+                                        </h3>
+                                        <p className="text-muted-foreground text-sm leading-relaxed">
+                                            An AI judge analyzes your entire
+                                            debate across five axes: logic
+                                            (soundness of reasoning), evidence
+                                            (quality of support), relevance
+                                            (addressing the topic and opponent),
+                                            rhetorical clarity (precision and
+                                            structure), and civility (respectful
+                                            engagement). The judge identifies
+                                            specific moves and provides detailed
+                                            feedback on what worked and why.
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <h3 className="mb-2 font-semibold text-foreground text-sm uppercase">
+                                            Winning Strategy
+                                        </h3>
+                                        <p className="text-muted-foreground text-sm leading-relaxed">
+                                            Victory comes from maintaining a
+                                            clear throughline, making sharp
+                                            distinctions early, and responding
+                                            cleanly. In openings, establish your
+                                            framing. In bursts, shift the proof
+                                            obligation back to your opponent. In
+                                            summations, synthesize your
+                                            strongest points.
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <h3 className="mb-2 font-semibold text-foreground text-sm uppercase">
+                                            Achievements & Mastery
+                                        </h3>
+                                        <p className="text-muted-foreground text-sm leading-relaxed">
+                                            Unlock achievements by executing
+                                            distinctive moves: win via reductio,
+                                            perform clean burden transfers, or
+                                            spot and fix equivocation. Each pack
+                                            rewards specific move types—master
+                                            them to climb the leaderboards and
+                                            build your reason score.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
                             <DialogFooter>
                                 <DialogClose
                                     render={
                                         <button
-                                            className="rounded-full border border-border/50 px-4 py-2 text-muted-foreground text-xs uppercase tracking-[0.35em] transition hover:bg-background/60 hover:text-foreground"
+                                            className="rounded-full border border-border/50 px-4 py-2 text-muted-foreground text-xs uppercase transition hover:bg-background/60 hover:text-foreground"
                                             type="button"
                                         >
                                             Close
@@ -382,10 +475,6 @@ export default function Lobby() {
                             </DialogFooter>
                         </DialogPopup>
                     </Dialog>
-                    <p className="text-muted-foreground text-sm">
-                        Anonymous matchmaking • Real-time debates • Skill-based
-                        feedback
-                    </p>
                     {/* Bottom technical notation - desktop only */}
                     <div className="mt-2 hidden items-center gap-2 opacity-40 lg:flex">
                         <span className="font-mono text-[9px] text-foreground">

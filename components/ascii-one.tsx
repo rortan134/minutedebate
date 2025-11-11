@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect } from "react";
+import { useLayoutEffect } from "react";
 
 const scriptContent = `!function(){if(!window.UnicornStudio){window.UnicornStudio={isInitialized:!1};var i=document.createElement("script");i.src="https://cdn.jsdelivr.net/gh/hiunicornstudio/unicornstudio.js@v1.4.34/dist/unicornStudio.umd.js",i.onload=function(){window.UnicornStudio.isInitialized||(UnicornStudio.init(),window.UnicornStudio.isInitialized=!0)},(document.head || document.body).appendChild(i)}}();`;
 
 export function AsciiOne() {
-    useEffect(() => {
+    useLayoutEffect(() => {
         const embedScript = document.createElement("script");
         embedScript.type = "text/javascript";
         embedScript.textContent = scriptContent;
@@ -87,11 +87,8 @@ export function AsciiOne() {
             }
         };
 
-        // Run immediately and more frequently
         hideBranding();
         const interval = setInterval(hideBranding, 50); // More frequent checks
-
-        // Also try after delays
         setTimeout(hideBranding, 500);
         setTimeout(hideBranding, 1000);
         setTimeout(hideBranding, 2000);
