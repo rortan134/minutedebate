@@ -20,7 +20,6 @@ next-env.d.ts
 .swc
 prisma/client/*
 prisma/zod/*
-_generated
 
 # misc
 .DS_Store
