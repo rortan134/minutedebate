@@ -32,17 +32,11 @@
     "linter": {
         "rules": {
             "recommended": true,
-            "suspicious": {
-                "noConsole": "off",
-                "noAlert": "off",
-                "noBitwiseOperators": "off"
-            },
             "style": {
                 "noEnum": "off",
                 "noNestedTernary": "off",
                 "noMagicNumbers": "off",
-                "useConsistentTypeDefinitions": "off",
-                "useUnifiedTypeSignatures": "off"
+                "useConsistentTypeDefinitions": "off"
             },
             "complexity": {
                 "noExcessiveCognitiveComplexity": "off",
@@ -50,14 +44,7 @@
                 "noImportantStyles": "off"
             },
             "performance": {
-                "noNamespaceImport": "off",
-                "noBarrelFile": "off"
-            },
-            "correctness": {
-                "noUnusedVariables": "off"
-            },
-            "a11y": {
-                "noSvgWithoutTitle": "off"
+                "noNamespaceImport": "off"
             }
         }
     }

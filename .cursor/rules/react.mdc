@@ -1,0 +1,30 @@
+---
+alwaysApply: false
+---
+# React useEffect Guidelines
+
+## Before using 'useEffect, consider the following: You Might Not Need an Effect
+
+- effects in react are for syncing with external systems, not for internal state or props changes.
+- avoid effects for data transformation, user events, and calculations that can be done during render.
+- redundant state and effects lead to unnecessary renders, stale values, and bugs.
+- useMemo is for caching expensive pure calculations, not for side effects.
+- resetting state on prop change is better handled by using keys or adjusting state during render, not with effects.
+- event handlers should contain logic for user actions; effects should only run code triggered by component display.
+- lift state up to parent components to avoid synchronization headaches.
+- data should flow down from parent to child; avoid passing data up via effects.
+- use purpose-built hooks (like useSyncExternalStore) for subscribing to external stores, not manual effect subscriptions.
+- effects for data fetching must handle race conditions with cleanup logic.
+- minimize raw useEffect calls; extract logic into custom hooks for maintainability.
+
+## Common cases where 'useEffect is NOT needed
+
+- Transforming data for rendering (use variables or useMemo instead)
+- Handling user events (use event handlers instead)
+- Resetting state when props change (use key prop or calculate during render)
+- Updating state based on props/state changes (calculate during render)
+
+## Only use 'useEffect for
+
+- Synchronizing with external systems (APIs, DOM, third-party libraries)
+- Cleanup that must happen when component unmounts
