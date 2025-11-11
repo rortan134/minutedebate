@@ -2,7 +2,6 @@
 
 import { AnimateHeight } from "@/components/ui/animate-height";
 import { AsciiOne } from "@/components/ui/ascii-one";
-import { Spinner } from "@/components/ui/spinner";
 import {
     Dialog,
     DialogClose,
@@ -14,6 +13,7 @@ import {
     DialogTrigger,
 } from "@/components/ui/dialog";
 import { Frame, FrameHeader, FramePanel } from "@/components/ui/frame";
+import { Spinner } from "@/components/ui/spinner";
 import {
     Tooltip,
     TooltipContent,
@@ -24,10 +24,14 @@ import { useInterval } from "@/hooks/use-interval";
 import { getAchievementMeta } from "@/lib/achievements-meta";
 import { cn } from "@/lib/cn";
 import { useMutation, useQuery } from "convex/react";
-import { ArrowUpRight } from "lucide-react";
+import { ArrowUpRight, Hourglass } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { api } from "../convex/_generated/api";
-import { getDailyPack, TOPIC_PACKS } from "../convex/topic_packs";
+import {
+    getDailyPack,
+    TOPIC_PACKS,
+    type TopicPack,
+} from "../convex/topic_packs";
 import { getOrCreatePlayerId } from "../lib/player-id";
 import { useNow } from "../lib/use-now";
 import StarBorder from "./ui/star-border";
@@ -69,8 +73,13 @@ export default function Lobby() {
             `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;
     }
 
-    const dailyPack = getDailyPack();
-    const packInfo = TOPIC_PACKS[dailyPack];
+    const [dailyPack, setDailyPack] = useState<TopicPack | null>(null);
+
+    useEffect(() => {
+        setDailyPack(getDailyPack());
+    }, []);
+
+    const packInfo = dailyPack ? TOPIC_PACKS[dailyPack] : null;
     type TickerAchievement = {
         readonly achievementId: string;
         readonly unlockedAt: number;
@@ -261,12 +270,14 @@ export default function Lobby() {
                             )
                         )}
                     </div>
-                    <h2 className="mt-6 font-semibold uppercase text-xl text-foreground">
-                        <span className="text-muted-foreground">
-                            Today&apos;s Pack:{" "}
-                        </span>
-                        {packInfo.name}
-                    </h2>
+                    {packInfo ? (
+                        <h2 className="mt-6 font-semibold uppercase text-xl text-foreground">
+                            <span className="text-muted-foreground">
+                                Today&apos;s Pack:{" "}
+                            </span>
+                            {packInfo.name}
+                        </h2>
+                    ) : null}
                     {achievementsTicker.length > 0 ? (
                         <TooltipProvider>
                             <div className="bg-card/30 border border-border/50 flex flex-wrap gap-2 items-center mt-3 rounded-full px-4 py-2 text-muted-foreground text-xs uppercase">
@@ -325,7 +336,7 @@ export default function Lobby() {
                                         >
                                             <span className="flex flex-col gap-0.5">
                                                 {isJoining || isQueued
-                                                    ? "Finding opponent..."
+                                                    ? "Quit Matchmaking"
                                                     : "Play • Join Queue"}
                                                 <span className="text-muted-foreground text-sm">
                                                     Oxford Mode
@@ -341,7 +352,9 @@ export default function Lobby() {
                             <FrameHeader>
                                 {isQueued ? (
                                     <p className="text-center text-muted-foreground text-sm">
-                                        Waiting {waitingSeconds}s
+                                        Finding opponent...{" "}
+                                        <Hourglass className="size-3 inline-block" />
+                                        {waitingSeconds}s
                                     </p>
                                 ) : resumeHref ? (
                                     <a

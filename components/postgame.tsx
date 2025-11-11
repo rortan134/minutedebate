@@ -200,7 +200,7 @@ export default function Postgame({ matchId, playerId }: PostgameProps) {
         ? `Match ready in ${countdown}`
         : isRequeueing
           ? "Preparing queue…"
-          : "Play Again";
+          : "Find another match";
     const copyLabel =
         copyStatus === "copied"
             ? "Copied!"
