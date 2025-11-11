@@ -1,5 +1,6 @@
 import ConvexClientProvider from "@/components/convex-provider";
 import { clientEnv } from "@/env/client";
+import { cn } from "@/lib/cn";
 import {
     APP_NAME,
     SITE_DESCRIPTION,
@@ -8,7 +9,7 @@ import {
     SITE_TITLE,
     SITE_URL,
 } from "@/lib/constants";
-import { cn } from "@/lib/cn";
+import { Analytics } from "@vercel/analytics/next";
 import type { Metadata, Viewport } from "next";
 import { Saira_Condensed } from "next/font/google";
 import type * as React from "react";
@@ -147,6 +148,7 @@ export default function RootLayout({
                 <h1 className="sr-only">{clientEnv.NEXT_PUBLIC_APP_NAME}</h1>
                 <ConvexClientProvider>{children}</ConvexClientProvider>
                 <JsonLd />
+                <Analytics />
             </body>
         </html>
     );

@@ -27,7 +27,7 @@ export const SITE_KEYWORDS = [
     "debate app",
     "debate website",
     "debate online",
-] as const;
+];
 
 export const SITE_TITLE = `${APP_NAME} | One minute. One topic. One winner.`;
 
