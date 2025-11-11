@@ -15,7 +15,6 @@ import {
 } from "@/components/ui/dialog";
 import { Frame, FrameHeader, FramePanel } from "@/components/ui/frame";
 import { useInterval } from "@/hooks/use-interval";
-import { usePreventWindowUnload } from "@/hooks/use-prevent-unload";
 import { cn } from "@/lib/cn";
 import { useMutation, useQuery } from "convex/react";
 import { useEffect, useRef, useState } from "react";
@@ -129,8 +128,6 @@ export default function Lobby() {
             window.location.href = `/match/${pendingMatchId}`;
         }
     }, [countdown, pendingMatchId]);
-
-    usePreventWindowUnload(!!(isQueued || pendingMatchId || countdown > 0));
 
     const handleJoinQueue = async () => {
         if (isQueued || playerMatch?.status === "active") {

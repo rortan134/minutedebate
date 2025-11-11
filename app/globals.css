@@ -7,11 +7,14 @@
 
 @theme {
     --fallback-fonts:
-        Helvetica Neue, helvetica, arial, Hiragino Kaku Gothic ProN, Meiryo, MS Gothic;
-    --font-sans: var(--font-saira-condensed, var(--fallback-fonts, sans-serif)), sans-serif;
+        Helvetica Neue, helvetica, arial, Hiragino Kaku Gothic ProN, Meiryo, MS
+        Gothic;
+    --font-sans:
+        var(--font-saira-condensed, var(--fallback-fonts, sans-serif)),
+        sans-serif;
     --font-mono:
-        ui-monospace, "SFMono-Regular", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New",
-        monospace;
+        ui-monospace, "SFMono-Regular", Menlo, Monaco, Consolas,
+        "Liberation Mono", "Courier New", monospace;
 }
 
 @theme inline {
@@ -63,7 +66,11 @@
     --radius: 0.625rem;
     --background: oklch(0 0 0);
     --foreground: oklch(0.967 0.001 286.375);
-    --card: color-mix(in srgb, oklch(0.21 0.006 285.885) 80%, oklch(0.141 0.005 285.823));
+    --card: color-mix(
+        in srgb,
+        oklch(0.21 0.006 285.885) 80%,
+        oklch(0.141 0.005 285.823)
+    );
     --card-foreground: oklch(0.967 0.001 286.375);
     --popover: oklch(0.21 0.006 285.885);
     --popover-foreground: oklch(0.967 0.001 286.375);
@@ -104,7 +111,11 @@
 .dark {
     --background: oklch(0.141 0.005 285.823);
     --foreground: oklch(0.967 0.001 286.375);
-    --card: color-mix(in srgb, oklch(0.21 0.006 285.885) 80%, oklch(0.141 0.005 285.823));
+    --card: color-mix(
+        in srgb,
+        oklch(0.21 0.006 285.885) 80%,
+        oklch(0.141 0.005 285.823)
+    );
     --card-foreground: oklch(0.967 0.001 286.375);
     --popover: oklch(0.21 0.006 285.885);
     --popover-foreground: oklch(0.967 0.001 286.375);
@@ -374,7 +385,19 @@
 
 .dither-pattern {
     background-image:
-        repeating-linear-gradient(0deg, transparent 0px, transparent 1px, white 1px, white 2px),
-        repeating-linear-gradient(90deg, transparent 0px, transparent 1px, white 1px, white 2px);
+        repeating-linear-gradient(
+            0deg,
+            transparent 0px,
+            transparent 1px,
+            white 1px,
+            white 2px
+        ),
+        repeating-linear-gradient(
+            90deg,
+            transparent 0px,
+            transparent 1px,
+            white 1px,
+            white 2px
+        );
     background-size: 3px 3px;
 }
