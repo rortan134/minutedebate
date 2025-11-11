@@ -5,6 +5,9 @@
       "name": "minutedebate",
       "dependencies": {
         "@base-ui-components/react": "^1.0.0-beta.4",
+        "@opentelemetry/api-logs": "^0.208.0",
+        "@opentelemetry/instrumentation": "^0.208.0",
+        "@opentelemetry/sdk-logs": "^0.208.0",
         "@radix-ui/react-use-callback-ref": "^1.1.1",
         "@t3-oss/env-nextjs": "^0.13.8",
         "@vercel/otel": "^2.1.0",
