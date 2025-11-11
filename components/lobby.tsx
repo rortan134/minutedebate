@@ -353,7 +353,7 @@ export default function Lobby() {
                                 {isQueued ? (
                                     <p className="text-center text-muted-foreground text-sm">
                                         Finding opponent...{" "}
-                                        <Hourglass className="size-3 inline-block" />
+                                        <Hourglass className="size-3 inline-block mx-0.5" />
                                         {waitingSeconds}s
                                     </p>
                                 ) : resumeHref ? (
@@ -385,12 +385,12 @@ export default function Lobby() {
                                     Master the art of structured debate
                                 </DialogTitle>
                                 <DialogDescription>
-                                    Join anonymous 1v1 debating matches where an
-                                    AI judge evaluates your reasoning across
-                                    five axes, awarding skill-based achievements
-                                    for distinctive moves. Every verdict
-                                    provides detailed feedback to sharpen your
-                                    debating skills.
+                                    Join anonymous 1v1 debating matches against
+                                    other players. An AI judge evaluates your
+                                    arguments across five criteria, awarding
+                                    skill-based achievements for distinctive
+                                    moves. Every verdict provides detailed
+                                    feedback to sharpen your debating skills.
                                 </DialogDescription>
                             </DialogHeader>
                             <div className="space-y-4">
