@@ -17,6 +17,7 @@ import { Spinner } from "@/components/ui/spinner";
 import {
     Tooltip,
     TooltipContent,
+    TooltipPopup,
     TooltipProvider,
     TooltipTrigger,
 } from "@/components/ui/tooltip";
@@ -24,8 +25,8 @@ import { useInterval } from "@/hooks/use-interval";
 import { getAchievementMeta } from "@/lib/achievements-meta";
 import { cn } from "@/lib/cn";
 import { useMutation, useQuery } from "convex/react";
-import { ArrowUpRight, Hourglass } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { ArrowUpRight, Hourglass, Info } from "lucide-react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { api } from "../convex/_generated/api";
 import {
     getDailyPack,
@@ -50,7 +51,7 @@ export default function Lobby() {
         playerId,
         limit: 6,
     });
-    const [isJoining, setIsJoining] = useState(false);
+    const [isJoining, startTransition] = useTransition();
     const [queueStartedAt, setQueueStartedAt] = useState<number | null>(() => {
         if (typeof window === "undefined") {
             return null;
@@ -165,7 +166,7 @@ export default function Lobby() {
         }
     }, [countdown, pendingMatchId]);
 
-    const handleJoinQueue = async () => {
+    const handleJoinQueue = () => {
         if (isQueued || playerMatch?.status === "active") {
             return;
         }
@@ -176,58 +177,56 @@ export default function Lobby() {
             localStorage.setItem(QUEUE_STARTED_AT_KEY, String(startTimestamp));
         }
 
-        setIsJoining(true);
-        try {
-            const matchId = await joinQueue({ playerId });
-            if (matchId) {
-                if (typeof window !== "undefined") {
-                    localStorage.removeItem(QUEUE_OWNER_KEY);
+        startTransition(async () => {
+            try {
+                const matchId = await joinQueue({ playerId });
+                if (matchId) {
+                    if (typeof window !== "undefined") {
+                        localStorage.removeItem(QUEUE_OWNER_KEY);
+                    }
+                    setPendingMatchId(matchId);
+                    setCountdown(3);
+                    return;
                 }
-                setPendingMatchId(matchId);
-                setCountdown(3);
-                return;
-            }
 
-            if (
-                typeof window !== "undefined" &&
-                tabIdRef.current &&
-                !localStorage.getItem(QUEUE_OWNER_KEY)
-            ) {
-                localStorage.setItem(QUEUE_OWNER_KEY, tabIdRef.current);
+                if (
+                    typeof window !== "undefined" &&
+                    tabIdRef.current &&
+                    !localStorage.getItem(QUEUE_OWNER_KEY)
+                ) {
+                    localStorage.setItem(QUEUE_OWNER_KEY, tabIdRef.current);
+                }
+            } catch (error) {
+                console.error("Failed to join queue:", error);
+                if (typeof window !== "undefined") {
+                    localStorage.removeItem(QUEUE_STARTED_AT_KEY);
+                }
+                setQueueStartedAt(null);
+                setPendingMatchId(null);
+                setCountdown(0);
             }
-        } catch (error) {
-            console.error("Failed to join queue:", error);
-            if (typeof window !== "undefined") {
-                localStorage.removeItem(QUEUE_STARTED_AT_KEY);
-            }
-            setQueueStartedAt(null);
-            setPendingMatchId(null);
-            setCountdown(0);
-        } finally {
-            setIsJoining(false);
-        }
+        });
     };
 
-    const handleLeaveQueue = async () => {
+    const handleLeaveQueue = () => {
         if (!isQueued) {
             return;
         }
-
-        setIsJoining(true);
-        try {
-            await leaveQueue({ playerId });
-        } catch (error) {
-            console.error("Failed to leave queue:", error);
-        } finally {
-            if (
-                typeof window !== "undefined" &&
-                tabIdRef.current &&
-                localStorage.getItem(QUEUE_OWNER_KEY) === tabIdRef.current
-            ) {
-                localStorage.removeItem(QUEUE_OWNER_KEY);
+        startTransition(async () => {
+            try {
+                await leaveQueue({ playerId });
+            } catch (error) {
+                console.error("Failed to leave queue:", error);
+            } finally {
+                if (
+                    typeof window !== "undefined" &&
+                    tabIdRef.current &&
+                    localStorage.getItem(QUEUE_OWNER_KEY) === tabIdRef.current
+                ) {
+                    localStorage.removeItem(QUEUE_OWNER_KEY);
+                }
             }
-            setIsJoining(false);
-        }
+        });
     };
 
     return (
@@ -256,7 +255,7 @@ export default function Lobby() {
                             Put your debating skills to the test — Play now!
                         </h2>
                     </div>
-                    <span className="font-mono text-[8px] text-foreground/60 lg:text-[10px]">
+                    <span className="-mt-1 font-mono text-[8px] text-foreground/60 lg:text-[10px]">
                         EST. 2025
                     </span>
                     {/* Decorative dots pattern - desktop only */}
@@ -271,11 +270,24 @@ export default function Lobby() {
                         )}
                     </div>
                     {packInfo ? (
-                        <h2 className="mt-6 font-semibold uppercase text-xl text-foreground">
+                        <h2 className="mt-6 inline-flex items-center font-semibold uppercase text-xl text-foreground">
                             <span className="text-muted-foreground">
-                                Today&apos;s Pack:{" "}
+                                Today&apos;s Category:
                             </span>
-                            {packInfo.name}
+                            &nbsp;{packInfo.name}
+                            <Tooltip>
+                                <TooltipTrigger>
+                                    <Info className="size-4 ml-1" />
+                                </TooltipTrigger>
+                                <TooltipPopup>
+                                    <p className="text-muted-foreground text-base">
+                                        All debates today will feature topics
+                                        from this category. The category rotates
+                                        daily, determining which topics and
+                                        achievements are available.
+                                    </p>
+                                </TooltipPopup>
+                            </Tooltip>
                         </h2>
                     ) : null}
                     {achievementsTicker.length > 0 ? (
@@ -325,7 +337,14 @@ export default function Lobby() {
                                     ) : (
                                         <StarBorder
                                             as="button"
-                                            className="relative w-full cursor-pointer overflow-hidden bg-slate-800 px-6 py-4 font-semibold uppercase text-foreground text-lg transition-colors hover:bg-slate-900 active:bg-slate-950 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+                                            className={cn(
+                                                "relative transform-gpu w-full text-left cursor-pointer overflow-hidden duration-100 px-6 py-4 font-semibold uppercase text-foreground text-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed",
+                                                {
+                                                    "hover:scale-[1.01]": !(
+                                                        isJoining || isQueued
+                                                    ),
+                                                }
+                                            )}
                                             disabled={isJoining}
                                             onClick={
                                                 isQueued
@@ -334,13 +353,18 @@ export default function Lobby() {
                                             }
                                             type="button"
                                         >
-                                            <span className="flex flex-col gap-0.5">
-                                                {isJoining || isQueued
-                                                    ? "Quit Matchmaking"
-                                                    : "Play • Join Queue"}
-                                                <span className="text-muted-foreground text-sm">
-                                                    Oxford Mode
+                                            <span className="flex flex-col">
+                                                <span className="text-base">
+                                                    {isJoining || isQueued
+                                                        ? "Quit Matchmaking"
+                                                        : "Play"}
                                                 </span>
+                                                {isJoining ||
+                                                isQueued ? null : (
+                                                    <span>
+                                                        Oxford Mode • Join Queue
+                                                    </span>
+                                                )}
                                             </span>
                                             {isJoining || isQueued ? null : (
                                                 <div className="animate-shine" />
@@ -351,14 +375,14 @@ export default function Lobby() {
                             </FramePanel>
                             <FrameHeader>
                                 {isQueued ? (
-                                    <p className="text-center text-muted-foreground text-sm">
+                                    <p className="text-foreground text-sm">
                                         Finding opponent...{" "}
                                         <Hourglass className="size-3 inline-block mx-0.5" />
                                         {waitingSeconds}s
                                     </p>
                                 ) : resumeHref ? (
                                     <a
-                                        className="group inline-flex relative w-full items-center justify-center gap-1 text-center cursor-pointer font-semibold text-sm uppercase text-foreground transition-colors hover:text-primary active:text-primary/80 active:scale-[0.98] disabled:opacity-50"
+                                        className="group inline-flex relative w-full items-center gap-1 cursor-pointer font-semibold text-sm uppercase text-foreground transition-colors hover:text-primary active:text-primary/80 active:scale-[0.98] disabled:opacity-50"
                                         href={resumeHref}
                                     >
                                         <span>{resumeLabel}</span>
@@ -372,7 +396,7 @@ export default function Lobby() {
                         <DialogTrigger
                             render={
                                 <button
-                                    className="w-full rounded-full border border-foreground/50 px-5 py-3 text-center font-semibold text-muted-foreground text-sm uppercase tracking-widest transition-colors hover:border-foreground hover:text-foreground hover:bg-background/20 active:bg-background/30 active:border-foreground/80 active:scale-[0.98]"
+                                    className="w-full rounded-full border border-foreground/50 px-5 py-3 font-semibold text-muted-foreground text-sm uppercase tracking-widest transition-colors hover:border-foreground hover:text-foreground hover:bg-background/20 active:bg-background/30 active:border-foreground/80 active:scale-[0.98]"
                                     type="button"
                                 >
                                     How To Play
