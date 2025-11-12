@@ -33,18 +33,14 @@
         "rules": {
             "recommended": true,
             "style": {
-                "noEnum": "off",
                 "noNestedTernary": "off",
-                "noMagicNumbers": "off",
                 "useConsistentTypeDefinitions": "off"
             },
             "nursery": {
                 "useSortedClasses": "off"
             },
             "complexity": {
-                "noExcessiveCognitiveComplexity": "off",
-                "noExcessiveLinesPerFunction": "off",
-                "noImportantStyles": "off"
+                "noExcessiveCognitiveComplexity": "off"
             },
             "performance": {
                 "noNamespaceImport": "off"
