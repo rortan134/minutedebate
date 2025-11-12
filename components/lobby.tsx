@@ -25,7 +25,7 @@ import { useInterval } from "@/hooks/use-interval";
 import { getAchievementMeta } from "@/lib/achievements-meta";
 import { cn } from "@/lib/cn";
 import { useMutation, useQuery } from "convex/react";
-import { ArrowUpRight, Hourglass, Info } from "lucide-react";
+import { ArrowUpRight, CirclePlus, Hourglass, Info } from "lucide-react";
 import { useEffect, useRef, useState, useTransition } from "react";
 import { api } from "../convex/_generated/api";
 import {
@@ -323,7 +323,7 @@ export default function Lobby() {
                             <FramePanel className="border-0! p-0! rounded-b-none!">
                                 <div className="flex flex-col gap-3">
                                     {pendingMatchId ? (
-                                        <div className="relative overflow-hidden rounded-2xl border border-border/60 bg-background/60 p-6 text-center shadow-lg backdrop-blur">
+                                        <div className="relative overflow-hidden rounded-2xl border border-border/60 bg-background/60 p-6 text-center shadow-lg">
                                             <p className="text-muted-foreground text-xs uppercase tracking-[0.35em]">
                                                 Joining match...
                                             </p>
@@ -373,33 +373,36 @@ export default function Lobby() {
                                     )}
                                 </div>
                             </FramePanel>
-                            <FrameHeader>
-                                {isQueued ? (
-                                    <p className="text-foreground text-sm">
-                                        Finding opponent...{" "}
-                                        <Hourglass className="size-3 inline-block mx-0.5" />
-                                        {waitingSeconds}s
-                                    </p>
-                                ) : resumeHref ? (
-                                    <a
-                                        className="group inline-flex relative w-full items-center gap-1 cursor-pointer font-semibold text-sm uppercase text-foreground transition-colors hover:text-primary active:text-primary/80 active:scale-[0.98] disabled:opacity-50"
-                                        href={resumeHref}
-                                    >
-                                        <span>{resumeLabel}</span>
-                                        <ArrowUpRight className="size-4 inline-block transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-                                    </a>
-                                ) : null}
-                            </FrameHeader>
+                            {isQueued || resumeHref ? (
+                                <FrameHeader>
+                                    {isQueued ? (
+                                        <p className="text-foreground text-sm">
+                                            Finding opponent...{" "}
+                                            <Hourglass className="size-3 inline-block mx-0.5" />
+                                            {waitingSeconds}s
+                                        </p>
+                                    ) : resumeHref ? (
+                                        <a
+                                            className="group inline-flex relative w-full items-center gap-1 cursor-pointer font-semibold text-sm uppercase text-foreground transition-colors hover:text-primary active:text-primary/80 active:scale-[0.99] disabled:opacity-50"
+                                            href={resumeHref}
+                                        >
+                                            <span>{resumeLabel}</span>
+                                            <ArrowUpRight className="size-4 inline-block transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                                        </a>
+                                    ) : null}
+                                </FrameHeader>
+                            ) : null}
                         </Frame>
                     </AnimateHeight>
                     <Dialog>
                         <DialogTrigger
                             render={
                                 <button
-                                    className="w-full rounded-full border border-foreground/50 px-5 py-3 font-semibold text-muted-foreground text-sm uppercase tracking-widest transition-colors hover:border-foreground hover:text-foreground hover:bg-background/20 active:bg-background/30 active:border-foreground/80 active:scale-[0.98]"
+                                    className="w-full inline-flex items-center justify-between rounded-full bg-muted text-left backdrop-blur-xs px-5 py-3 cursor-pointer font-semibold text-muted-foreground text-sm uppercase tracking-widest transition-transform hover:text-foreground active:bg-muted/80 active:scale-[0.99]"
                                     type="button"
                                 >
-                                    How To Play
+                                    <span>How To Play</span>
+                                    <CirclePlus className="size-3.5 inline-block" />
                                 </button>
                             }
                         />

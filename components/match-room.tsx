@@ -3,6 +3,7 @@
 import { usePreventWindowUnload } from "@/hooks/use-prevent-unload";
 import { cn } from "@/lib/cn";
 import { useMutation, useQuery } from "convex/react";
+import { ArrowUpIcon } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { api } from "../convex/_generated/api";
 import type { Id } from "../convex/_generated/dataModel";
@@ -16,6 +17,17 @@ import { getOrCreatePlayerId } from "../lib/player-id";
 import { useNow } from "../lib/use-now";
 import { PackFocusCard } from "./pack-focus-card";
 import { PauseBudgetMeter } from "./pause-budget-meter";
+import {
+    InputGroup,
+    InputGroupAddon,
+    InputGroupTextarea,
+} from "./ui/input-group";
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from "./ui/tooltip";
 
 const PAUSE_BUDGET_CAP_MS = 4000;
 
@@ -380,6 +392,8 @@ export default function MatchRoom({
     const moveGoals = packInfo?.moveGoals ?? [];
     const guidanceCopy = resolveGuidance(phaseKey, isMyTurn);
     const guidanceKey = `${phaseKey}-${isMyTurn ? "active" : "waiting"}`;
+    const secondsRemaining = Math.max(0, Math.ceil(timeRemaining / 1000));
+    const isSubmitDisabled = input.trim().length === 0 || timeRemaining === 0;
 
     const formatTime = (ms: number) => {
         const seconds = Math.ceil(ms / 1000);
@@ -555,31 +569,57 @@ export default function MatchRoom({
 
                         {isMyTurn && match.status === "active" ? (
                             <form className="space-y-3" onSubmit={handleSubmit}>
-                                <label
-                                    className="flex items-center justify-between text-muted-foreground text-xs uppercase tracking-[0.3em]"
-                                    htmlFor={composeInputId}
-                                >
-                                    <span>Compose move</span>
-                                    <span>{input.length} chars</span>
-                                </label>
-                                <textarea
-                                    className="min-h-[120px] w-full rounded-xl border border-border/60 bg-background/60 p-4 font-mono text-foreground text-sm shadow-inner focus:outline-none focus:ring-2 focus:ring-primary/40"
-                                    disabled={!isMyTurn || timeRemaining === 0}
-                                    id={composeInputId}
-                                    onChange={handleInputChange}
-                                    placeholder="Type your argument..."
-                                    value={input}
-                                />
-                                <button
-                                    className="w-full rounded-xl bg-foreground px-4 py-3 text-center font-semibold text-background uppercase tracking-[0.35em] transition hover:bg-foreground/90 disabled:cursor-not-allowed disabled:opacity-50"
-                                    disabled={
-                                        input.trim().length === 0 ||
-                                        timeRemaining === 0
-                                    }
-                                    type="submit"
-                                >
-                                    Submit Move
-                                </button>
+                                <div className="flex items-center justify-between text-muted-foreground text-xs uppercase tracking-[0.3em]">
+                                    <span>Compose Move</span>
+                                    <span>
+                                        {input.length} chars ·{" "}
+                                        {secondsRemaining}s
+                                    </span>
+                                </div>
+                                <TooltipProvider>
+                                    <InputGroup className="w-full flex-col">
+                                        <InputGroupTextarea
+                                            className="font-mono text-sm"
+                                            disabled={
+                                                !isMyTurn || timeRemaining === 0
+                                            }
+                                            id={composeInputId}
+                                            onChange={handleInputChange}
+                                            placeholder="Type your argument..."
+                                            rows={5}
+                                            size="lg"
+                                            value={input}
+                                        />
+                                        <InputGroupAddon
+                                            align="block-end"
+                                            className="justify-end"
+                                        >
+                                            <Tooltip>
+                                                <TooltipTrigger
+                                                    render={
+                                                        <button
+                                                            aria-label="Send move"
+                                                            className={cn(
+                                                                "inline-flex h-10 w-10 items-center justify-center rounded-full bg-foreground text-background transition hover:bg-foreground/90 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40",
+                                                                isSubmitDisabled &&
+                                                                    "cursor-not-allowed bg-foreground/40 hover:bg-foreground/40"
+                                                            )}
+                                                            disabled={
+                                                                isSubmitDisabled
+                                                            }
+                                                            type="submit"
+                                                        >
+                                                            <ArrowUpIcon className="size-4" />
+                                                        </button>
+                                                    }
+                                                />
+                                                <TooltipContent side="top">
+                                                    Submit
+                                                </TooltipContent>
+                                            </Tooltip>
+                                        </InputGroupAddon>
+                                    </InputGroup>
+                                </TooltipProvider>
                             </form>
                         ) : (
                             <div className="rounded-xl border border-border/40 bg-background/40 px-4 py-10 text-center text-muted-foreground text-sm uppercase tracking-[0.35em]">
