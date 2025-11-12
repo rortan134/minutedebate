@@ -302,14 +302,14 @@ export default function Postgame({ matchId, playerId }: PostgameProps) {
         }
     };
     return (
-        <div className="relative min-h-screen overflow-hidden bg-background text-foreground">
+        <div className="relative h-screen overflow-hidden bg-background text-foreground">
             <div className="absolute top-1 left-1 z-10 h-8 w-8 border-border/80 border-t-2 border-l-2 lg:h-12 lg:w-12" />
             <div className="absolute top-1 right-1 z-10 h-8 w-8 border-border/80 border-t-2 border-r-2 lg:h-12 lg:w-12" />
             <div className="absolute bottom-1 left-1 z-10 h-8 w-8 border-border/80 border-b-2 border-l-2 lg:h-12 lg:w-12" />
             <div className="absolute right-1 bottom-1 z-10 h-8 w-8 border-border/80 border-r-2 border-b-2 lg:h-12 lg:w-12" />
 
-            <main className="grid min-h-screen grid-cols-12 gap-6 px-6 py-10 lg:px-12">
-                <section className="col-span-full flex flex-col gap-6 lg:col-span-8">
+            <main className="flex h-full flex-col gap-6 overflow-y-auto px-6 py-10 lg:px-12">
+                <section className="flex flex-col gap-6">
                     <header className="space-y-5 rounded-2xl border border-border/50 bg-card/30 p-6 shadow-lg backdrop-blur">
                         <div className="flex flex-wrap items-center justify-between gap-4">
                             <div>
@@ -369,6 +369,12 @@ export default function Postgame({ matchId, playerId }: PostgameProps) {
                             >
                                 {copyLabel}
                             </button>
+                            <a
+                                className="inline-flex items-center justify-center rounded-full border border-border/60 px-5 py-2 font-semibold text-xs uppercase tracking-[0.35em] text-foreground transition hover:border-foreground hover:text-foreground/90"
+                                href="/"
+                            >
+                                Return to lobby
+                            </a>
                             <span className="text-muted-foreground text-xs uppercase tracking-[0.35em]">
                                 Total achievements: {totalAchievements}
                             </span>
@@ -580,66 +586,49 @@ export default function Postgame({ matchId, playerId }: PostgameProps) {
                         </section>
                     ) : null}
                 </section>
-
-                <aside className="col-span-full flex flex-col gap-4 lg:col-span-4">
-                    {leaderboard && leaderboard.length > 0 ? (
-                        <div className="space-y-4 rounded-2xl border border-border/50 bg-card/30 p-6 shadow-lg backdrop-blur">
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <p className="text-muted-foreground text-xs uppercase tracking-[0.35em]">
-                                        Leaderboard
-                                    </p>
-                                    <h3 className="font-semibold text-muted-foreground text-sm uppercase tracking-[0.3em]">
-                                        {packInfo?.name}
-                                    </h3>
-                                </div>
-                                <span className="font-mono text-muted-foreground text-xs uppercase tracking-[0.35em]">
-                                    Top 10
-                                </span>
+                {leaderboard && leaderboard.length > 0 ? (
+                    <section className="space-y-4 rounded-2xl border border-border/50 bg-card/30 p-6 shadow-lg backdrop-blur">
+                        <div className="flex flex-wrap items-center justify-between gap-3">
+                            <div>
+                                <p className="text-muted-foreground text-xs uppercase tracking-[0.35em]">
+                                    Leaderboard
+                                </p>
+                                <h3 className="font-semibold text-muted-foreground text-sm uppercase tracking-[0.3em]">
+                                    {packInfo?.name}
+                                </h3>
                             </div>
-                            <ul className="space-y-2 text-muted-foreground text-sm">
-                                {leaderboard.slice(0, 10).map(
-                                    (
-                                        entry: {
-                                            playerId: Id<"players">;
-                                            reasonScore: number;
-                                            totalMatches: number;
-                                            wins: number;
-                                        },
-                                        idx: number
-                                    ) => (
-                                        <li
-                                            className="flex items-center justify-between rounded-lg border border-border/40 bg-background/40 px-3 py-2"
-                                            key={entry.playerId}
-                                        >
-                                            <span className="font-semibold text-foreground">
-                                                #{idx + 1}
-                                            </span>
-                                            <span className="text-xs uppercase tracking-[0.25em]">
-                                                {entry.reasonScore.toFixed(1)}{" "}
-                                                pts • {entry.wins}W/
-                                                {entry.totalMatches}
-                                            </span>
-                                        </li>
-                                    )
-                                )}
-                            </ul>
+                            <span className="font-mono text-muted-foreground text-xs uppercase tracking-[0.35em]">
+                                Top 10
+                            </span>
                         </div>
-                    ) : null}
-
-                    <div className="rounded-2xl border border-border/50 bg-card/20 p-6 text-muted-foreground text-xs uppercase tracking-[0.35em] shadow-lg backdrop-blur">
-                        Keep sharpening distinctions, burden shifts, and
-                        civility— every tagged move feeds your leaderboard climb
-                        and achievement streak.
-                    </div>
-
-                    <a
-                        className="inline-flex items-center justify-center rounded-full border border-border/50 bg-background/60 px-6 py-3 text-foreground text-xs uppercase tracking-[0.4em] transition hover:bg-background"
-                        href="/"
-                    >
-                        Return To Lobby
-                    </a>
-                </aside>
+                        <ul className="space-y-2 text-muted-foreground text-sm">
+                            {leaderboard.slice(0, 10).map(
+                                (
+                                    entry: {
+                                        playerId: Id<"players">;
+                                        reasonScore: number;
+                                        totalMatches: number;
+                                        wins: number;
+                                    },
+                                    idx: number
+                                ) => (
+                                    <li
+                                        className="flex items-center justify-between rounded-lg border border-border/40 bg-background/40 px-3 py-2"
+                                        key={entry.playerId}
+                                    >
+                                        <span className="font-semibold text-foreground">
+                                            #{idx + 1}
+                                        </span>
+                                        <span className="text-xs uppercase tracking-[0.25em]">
+                                            {entry.reasonScore.toFixed(1)} pts •{" "}
+                                            {entry.wins}W/{entry.totalMatches}
+                                        </span>
+                                    </li>
+                                )
+                            )}
+                        </ul>
+                    </section>
+                ) : null}
             </main>
         </div>
     );

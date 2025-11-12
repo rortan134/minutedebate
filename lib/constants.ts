@@ -4,7 +4,7 @@ export const SITE_URL =
 export const APP_NAME = "MinuteDebate";
 
 export const SITE_DESCRIPTION =
-    "Master the art of structured debate in real-time 1v1 matches. AI judges evaluate your reasoning across five axes—logic, evidence, relevance, clarity, and civility. Oxford cadence format with cadence-gated typing. Free to play.";
+    "Play the world's best intellectual debate game for free. Master the art of structured debates in real-time 1v1 matches.";
 
 export const SITE_KEYWORDS = [
     "debate game",
