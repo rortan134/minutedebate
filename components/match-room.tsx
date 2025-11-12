@@ -4,6 +4,7 @@ import { usePreventWindowUnload } from "@/hooks/use-prevent-unload";
 import { cn } from "@/lib/cn";
 import { useMutation, useQuery } from "convex/react";
 import { ArrowUpIcon } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { api } from "../convex/_generated/api";
 import type { Id } from "../convex/_generated/dataModel";
@@ -198,6 +199,7 @@ export default function MatchRoom({
     matchId,
     playerId: playerIdProp,
 }: MatchRoomProps) {
+    const router = useRouter();
     const [playerId] = useState(() => playerIdProp || getOrCreatePlayerId());
     const match = useQuery(api.matchmaking.getMatch, { matchId });
     const messages = useQuery(api.messaging.getMessages, { matchId });
@@ -366,10 +368,11 @@ export default function MatchRoom({
         }
     };
 
-    if (match?.status === "completed" && typeof window !== "undefined") {
-        window.location.href = `/match/${matchId}/results`;
-        return null;
-    }
+    useEffect(() => {
+        if (match?.status === "completed" || match?.status === "forfeited") {
+            router.push(`/match/${matchId}/results`);
+        }
+    }, [match?.status, matchId, router]);
 
     if (!(match && playerDocId && derivedState)) {
         return (

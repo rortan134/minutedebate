@@ -1,9 +1,9 @@
-import * as React from "react";
+import { useRef, useEffect, useEffectEvent } from "react";
 
 export function useAutoResizeTextArea(maxHeight?: number) {
-    const textAreaRef = React.useRef<HTMLTextAreaElement>(null);
+    const textAreaRef = useRef<HTMLTextAreaElement>(null);
 
-    const autoResize = React.useEffectEvent((textArea: HTMLTextAreaElement) => {
+    const autoResize = useEffectEvent((textArea: HTMLTextAreaElement) => {
         textArea.style.height = "auto";
         let newHeight = textArea.scrollHeight;
 
@@ -24,7 +24,7 @@ export function useAutoResizeTextArea(maxHeight?: number) {
         textArea.style.height = `${newHeight}px`;
     });
 
-    React.useEffect(() => {
+    useEffect(() => {
         const textArea = textAreaRef.current;
         if (!textArea) {
             return;

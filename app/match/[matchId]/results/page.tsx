@@ -1,15 +1,12 @@
 "use client";
 
 import Postgame from "@/components/postgame";
+import { LoadingContainer } from "@/components/ui/loading-container";
 import type { Id } from "@/convex/_generated/dataModel";
 import { getOrCreatePlayerId } from "@/lib/player-id";
 import { Suspense, use, useState } from "react";
 
-function PostgameWrapper({
-    params,
-}: {
-    params: Promise<{ matchId: string }>;
-}) {
+function PostgameWrapper({ params }: { params: Promise<{ matchId: string }> }) {
     const resolvedParams = use(params);
     const [playerId] = useState(() => getOrCreatePlayerId());
 
@@ -27,15 +24,7 @@ export default function ResultsPage({
     params: Promise<{ matchId: string }>;
 }) {
     return (
-        <Suspense
-            fallback={
-                <div className="flex min-h-screen items-center justify-center bg-background text-muted-foreground">
-                    <div className="text-lg uppercase tracking-[0.3em]">
-                        Loading results…
-                    </div>
-                </div>
-            }
-        >
+        <Suspense fallback={<LoadingContainer />}>
             <PostgameWrapper params={params} />
         </Suspense>
     );

@@ -1,18 +1,18 @@
-import * as React from "react";
+import { useRef, useCallback, useEffect } from "react";
 
 export function useTimeout() {
-    const timeoutId = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+    const timeoutId = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-    const _clearTimeout = React.useCallback(() => {
+    const _clearTimeout = useCallback(() => {
         if (timeoutId.current !== null) {
             clearTimeout(timeoutId.current);
             timeoutId.current = null;
         }
     }, []);
 
-    React.useEffect(() => _clearTimeout, [_clearTimeout]);
+    useEffect(() => _clearTimeout, [_clearTimeout]);
 
-    const _setTimeout = React.useCallback(
+    const _setTimeout = useCallback(
         <Args extends unknown[]>(
             callback: (...args: Args) => void,
             ms: number,

@@ -1,6 +1,7 @@
 "use client";
 
 import MatchRoom from "@/components/match-room";
+import { LoadingContainer } from "@/components/ui/loading-container";
 import type { Id } from "@/convex/_generated/dataModel";
 import { getOrCreatePlayerId } from "@/lib/player-id";
 import { Suspense, use, useState } from "react";
@@ -27,15 +28,7 @@ export default function MatchPage({
     params: Promise<{ matchId: string }>;
 }) {
     return (
-        <Suspense
-            fallback={
-                <div className="flex min-h-screen items-center justify-center bg-background text-muted-foreground">
-                    <div className="text-lg uppercase tracking-[0.3em]">
-                        Loading match…
-                    </div>
-                </div>
-            }
-        >
+        <Suspense fallback={<LoadingContainer />}>
             <MatchRoomWrapper params={params} />
         </Suspense>
     );

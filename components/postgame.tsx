@@ -15,6 +15,7 @@ import {
     type MoveKey,
 } from "@/lib/move-goals";
 import { useMutation, useQuery } from "convex/react";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { api } from "../convex/_generated/api";
 import type { Id } from "../convex/_generated/dataModel";
@@ -99,6 +100,7 @@ const COUNTDOWN_SECONDS = 3;
 const COPY_RESET_MS = 2400;
 
 export default function Postgame({ matchId, playerId }: PostgameProps) {
+    const router = useRouter();
     const match = useQuery(api.matchmaking.getMatch, { matchId });
     const playerDoc = useQuery(api.matchmaking.getPlayerDoc, { playerId });
     const leaderboard = useQuery(api.judging.getLeaderboard, {
@@ -131,11 +133,49 @@ export default function Postgame({ matchId, playerId }: PostgameProps) {
 
     useEffect(() => {
         if (pendingMatchId && countdown === 0 && isRequeueing) {
-            window.location.href = `/match/${pendingMatchId}`;
+            router.push(`/match/${pendingMatchId}`);
         }
-    }, [countdown, isRequeueing, pendingMatchId]);
+    }, [countdown, isRequeueing, pendingMatchId, router]);
 
-    if (!match?.verdict || playerDoc === undefined) {
+    if (playerDoc === undefined) {
+        return (
+            <div className="flex min-h-screen items-center justify-center bg-background text-muted-foreground">
+                <div className="text-lg uppercase tracking-[0.3em]">
+                    Loading results…
+                </div>
+            </div>
+        );
+    }
+
+    if (match === undefined) {
+        return (
+            <div className="flex min-h-screen items-center justify-center bg-background text-muted-foreground">
+                <div className="text-lg uppercase tracking-[0.3em]">
+                    Loading results…
+                </div>
+            </div>
+        );
+    }
+
+    if (match === null) {
+        return (
+            <div className="flex min-h-screen items-center justify-center bg-background text-muted-foreground">
+                <div className="space-y-4 text-center">
+                    <div className="text-lg uppercase tracking-[0.3em]">
+                        Match not found
+                    </div>
+                    <a
+                        className="inline-flex items-center justify-center rounded-full border border-border/60 px-5 py-2 font-semibold text-xs uppercase tracking-[0.35em] text-foreground transition hover:border-foreground hover:text-foreground/90"
+                        href="/"
+                    >
+                        Return to lobby
+                    </a>
+                </div>
+            </div>
+        );
+    }
+
+    if (!match.verdict) {
         return (
             <div className="flex min-h-screen items-center justify-center bg-background text-muted-foreground">
                 <div className="text-lg uppercase tracking-[0.3em]">
@@ -222,7 +262,7 @@ export default function Postgame({ matchId, playerId }: PostgameProps) {
                 return;
             }
             setIsRequeueing(false);
-            window.location.href = "/";
+            router.push("/");
         } catch (error) {
             console.error("Failed to requeue:", error);
             setJoinError("Couldn't start a new match. Try again in a moment.");

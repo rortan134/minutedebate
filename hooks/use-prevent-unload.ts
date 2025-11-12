@@ -1,10 +1,10 @@
-import * as React from "react";
+import { useCallback, useEffect } from "react";
 
 export const usePreventWindowUnload = (
     shouldPreventDefault: boolean,
     message?: string
 ) => {
-    const handleBeforeUnload = React.useCallback(
+    const handleBeforeUnload = useCallback(
         (event: BeforeUnloadEvent) => {
             if (!shouldPreventDefault) {
                 return;
@@ -19,7 +19,7 @@ export const usePreventWindowUnload = (
         [shouldPreventDefault, message]
     );
 
-    React.useEffect(() => {
+    useEffect(() => {
         window.addEventListener("beforeunload", handleBeforeUnload);
         return () => {
             window.removeEventListener("beforeunload", handleBeforeUnload);
