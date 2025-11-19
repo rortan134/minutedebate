@@ -1,28 +1,20 @@
-import { useCallback, useEffect } from "react";
+import * as React from "react";
 
-export const usePreventWindowUnload = (
-    shouldPreventDefault: boolean,
-    message?: string
-) => {
-    const handleBeforeUnload = useCallback(
-        (event: BeforeUnloadEvent) => {
-            if (!shouldPreventDefault) {
-                return;
-            }
+const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+    event.preventDefault();
+    // Modern browsers show a generic message and ignore this value.
+    // But it's required for older browser compatibility.
+    event.returnValue = "";
+    return "";
+};
 
-            event.preventDefault();
-            // Modern browsers show a generic message and ignore this value.
-            // But it's required for older browser compatibility.
-            event.returnValue = message ?? "";
-            return "";
-        },
-        [shouldPreventDefault, message]
-    );
-
-    useEffect(() => {
+export const usePreventWindowUnload = (preventDefault: boolean) => {
+    React.useEffect(() => {
+        if (!preventDefault) {
+            return;
+        }
         window.addEventListener("beforeunload", handleBeforeUnload);
-        return () => {
+        return () =>
             window.removeEventListener("beforeunload", handleBeforeUnload);
-        };
-    }, [handleBeforeUnload]);
+    }, [preventDefault]);
 };

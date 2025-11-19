@@ -1,9 +1,9 @@
-import { SITE_URL } from "@/lib/constants";
+import { WEBSITE_URL } from "@/lib/constants";
 
 export default function robots() {
     return {
-        host: SITE_URL,
+        host: WEBSITE_URL,
         rules: [{ userAgent: "*" }],
-        sitemap: `${SITE_URL}/sitemap.xml`,
+        sitemap: `${WEBSITE_URL}/sitemap.xml`,
     };
 }

@@ -1,4 +1,4 @@
-import { useRef, useEffect, useEffectEvent } from "react";
+import { useEffect, useEffectEvent, useRef } from "react";
 
 export function useAutoResizeTextArea(maxHeight?: number) {
     const textAreaRef = useRef<HTMLTextAreaElement>(null);
@@ -35,12 +35,15 @@ export function useAutoResizeTextArea(maxHeight?: number) {
             "fieldSizing" in document.documentElement.style;
 
         if (!supportsFieldSizing) {
+            // Fallback path
             const handleInput = () => autoResize(textArea);
 
             // Initial resize
             autoResize(textArea);
             textArea.addEventListener("input", handleInput);
-            return () => textArea.removeEventListener("input", handleInput);
+            return () => {
+                textArea.removeEventListener("input", handleInput);
+            };
         }
     }, []);
 

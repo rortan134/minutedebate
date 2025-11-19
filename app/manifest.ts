@@ -1,11 +1,11 @@
-import { APP_NAME, SITE_DESCRIPTION, SITE_URL } from "@/lib/constants";
+import { APP_NAME, WEBSITE_DESCRIPTION, WEBSITE_URL } from "@/lib/constants";
 import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
     return {
         background_color: "#000000",
         categories: ["games", "education"],
-        description: SITE_DESCRIPTION,
+        description: WEBSITE_DESCRIPTION,
         dir: "ltr",
         display: "standalone",
         display_override: ["fullscreen"],
@@ -30,6 +30,6 @@ export default function manifest(): MetadataRoute.Manifest {
         short_name: APP_NAME,
         start_url: "/?utm_source=pwa_homescreen&__pwa=1",
         theme_color: "#fffbf0",
-        scope: SITE_URL,
+        scope: WEBSITE_URL,
     };
 }

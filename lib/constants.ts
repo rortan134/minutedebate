@@ -1,12 +1,12 @@
-export const SITE_URL =
-    process.env.NEXT_PUBLIC_SITE_URL ?? "https://minutedebate.com";
-
 export const APP_NAME = "MinuteDebate";
 
-export const SITE_DESCRIPTION =
+export const WEBSITE_URL =
+    process.env.NEXT_PUBLIC_SITE_URL ?? "https://minutedebate.com";
+
+export const WEBSITE_DESCRIPTION =
     "Play the world's best intellectual debate game for free. Master the art of structured debates in real-time 1v1 matches.";
 
-export const SITE_KEYWORDS = [
+export const WEBSITE_KEYWORDS = [
     "debate game",
     "online debate",
     "debate practice",
@@ -29,6 +29,6 @@ export const SITE_KEYWORDS = [
     "debate online",
 ];
 
-export const SITE_TITLE = `${APP_NAME} | One minute. One topic. One winner.`;
+export const WEBSITE_TITLE = `Free 1v1 Debate Game Online | ${APP_NAME}`;
 
-export const SITE_SLOGAN = "One minute. One topic. One winner.";
+export const WEBSITE_SLOGAN = "One minute. One topic. One winner.";

@@ -3,11 +3,11 @@ import { clientEnv } from "@/env/client";
 import { cn } from "@/lib/cn";
 import {
     APP_NAME,
-    SITE_DESCRIPTION,
-    SITE_KEYWORDS,
-    SITE_SLOGAN,
-    SITE_TITLE,
-    SITE_URL,
+    WEBSITE_DESCRIPTION,
+    WEBSITE_KEYWORDS,
+    WEBSITE_SLOGAN,
+    WEBSITE_TITLE,
+    WEBSITE_URL,
 } from "@/lib/constants";
 import { Analytics } from "@vercel/analytics/next";
 import type { Metadata, Viewport } from "next";
@@ -31,14 +31,14 @@ const sairaCondensed = Saira_Condensed({
     variable: "--font-saira-condensed",
 });
 
-const siteUrl = SITE_URL;
+const siteUrl = WEBSITE_URL;
 const heroImage = new URL("/android-chrome-512x512.png", siteUrl).toString();
 const ogImage = new URL("/opengraph-image.png", siteUrl).toString();
 
 const appName = APP_NAME;
-const title = SITE_TITLE;
-const description = SITE_DESCRIPTION;
-const keywords = SITE_KEYWORDS;
+const title = WEBSITE_TITLE;
+const description = WEBSITE_DESCRIPTION;
+const keywords = WEBSITE_KEYWORDS;
 
 export const viewport: Viewport = {
     initialScale: 1,
@@ -175,7 +175,7 @@ const brandJsonLd: WithContext<Brand> = {
     logo: heroImage,
     name: appName,
     url: siteUrl,
-    slogan: SITE_SLOGAN,
+    slogan: WEBSITE_SLOGAN,
 };
 
 const webApplicationJsonLd: WithContext<WebApplication> = {

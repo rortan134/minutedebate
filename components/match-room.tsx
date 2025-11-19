@@ -16,7 +16,6 @@ import {
 } from "../lib/cadence";
 import { getOrCreatePlayerId } from "../lib/player-id";
 import { useNow } from "../lib/use-now";
-import { PackFocusCard } from "./pack-focus-card";
 import { PauseBudgetMeter } from "./pause-budget-meter";
 import {
     InputGroup,
@@ -217,14 +216,25 @@ export default function MatchRoom({
     const now = useNow();
     const matchStatusRef = useRef<string | undefined>(match?.status);
 
+    // Auto-scroll to bottom of chat
+    const transcriptRef = useRef<HTMLDivElement>(null);
+    const lastMessageCount = useRef(0);
+
+    useEffect(() => {
+        if (messages && messages.length > lastMessageCount.current) {
+            if (transcriptRef.current) {
+                transcriptRef.current.scrollTop =
+                    transcriptRef.current.scrollHeight;
+            }
+            lastMessageCount.current = messages.length;
+        }
+    }, [messages]);
+
     useEffect(() => {
         matchStatusRef.current = match?.status ?? undefined;
     }, [match?.status]);
 
-    usePreventWindowUnload(
-        match?.status === "active",
-        "Leaving will forfeit the match."
-    );
+    usePreventWindowUnload(match?.status === "active");
 
     useEffect(() => {
         if (!playerDocId) {
@@ -340,7 +350,7 @@ export default function MatchRoom({
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!(match && isMyTurn) || input.trim().length === 0) {
+        if (!(match && derivedState?.isMyTurn) || input.trim().length === 0) {
             return;
         }
 
@@ -377,7 +387,7 @@ export default function MatchRoom({
     if (!(match && playerDocId && derivedState)) {
         return (
             <div className="flex min-h-screen items-center justify-center bg-background text-muted-foreground">
-                <div className="text-lg uppercase tracking-[0.3em]">
+                <div className="text-xs uppercase tracking-wider">
                     Loading match…
                 </div>
             </div>
@@ -392,9 +402,7 @@ export default function MatchRoom({
     const timeRemaining = Math.max(0, match.phaseEndTime - now);
     const packInfo =
         TOPIC_PACKS[match.topicPack as keyof typeof TOPIC_PACKS] ?? null;
-    const moveGoals = packInfo?.moveGoals ?? [];
     const guidanceCopy = resolveGuidance(phaseKey, isMyTurn);
-    const guidanceKey = `${phaseKey}-${isMyTurn ? "active" : "waiting"}`;
     const secondsRemaining = Math.max(0, Math.ceil(timeRemaining / 1000));
     const isSubmitDisabled = input.trim().length === 0 || timeRemaining === 0;
 
@@ -407,283 +415,219 @@ export default function MatchRoom({
     const composeInputId = `compose-${String(matchId)}`;
 
     return (
-        <div className="relative min-h-screen overflow-hidden bg-background text-foreground">
-            <div className="absolute top-1 left-1 z-10 h-8 w-8 border-border/80 border-t-2 border-l-2 lg:h-12 lg:w-12" />
-            <div className="absolute top-1 right-1 z-10 h-8 w-8 border-border/80 border-t-2 border-r-2 lg:h-12 lg:w-12" />
-            <div className="absolute bottom-1 left-1 z-10 h-8 w-8 border-border/80 border-b-2 border-l-2 lg:h-12 lg:w-12" />
-            <div className="absolute right-1 bottom-1 z-10 h-8 w-8 border-border/80 border-r-2 border-b-2 lg:h-12 lg:w-12" />
+        <div className="flex h-screen flex-col overflow-hidden bg-background text-foreground">
+            {/* Header */}
+            <header className="flex-none border-b border-border/60 bg-card/20 backdrop-blur-sm px-6 py-4">
+                <div className="flex items-start justify-between gap-6">
+                    <div className="space-y-1">
+                        <div className="flex items-center gap-3 text-muted-foreground text-xs uppercase tracking-widest">
+                            <span>{packInfo?.name ?? "MinuteDebate"}</span>
+                            <span className="h-3 w-px bg-border/60" />
+                            <span
+                                className={cn(
+                                    timeRemaining < 10_000 &&
+                                        "text-destructive animate-pulse"
+                                )}
+                            >
+                                {formatTime(timeRemaining)}
+                            </span>
+                        </div>
+                        <h1 className="font-bold text-lg uppercase tracking-tight lg:text-xl">
+                            {phaseLabel}
+                        </h1>
+                        <p className="line-clamp-1 max-w-md text-muted-foreground text-sm">
+                            {match.topic}
+                        </p>
+                    </div>
 
-            <main className="grid min-h-screen grid-cols-12 gap-6 px-6 py-10 lg:px-12">
-                <section className="col-span-full flex flex-col gap-6 lg:col-span-8">
-                    <header className="relative space-y-5 overflow-hidden rounded-2xl border border-border/50 bg-card/40 p-6 shadow-lg backdrop-blur">
-                        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-                            <div className="space-y-3">
-                                <div className="flex items-center gap-2 text-muted-foreground text-xs uppercase tracking-[0.45em]">
-                                    <span>Phase</span>
-                                    <div className="h-px flex-1 bg-border" />
-                                    <span>{formatTime(timeRemaining)}</span>
-                                </div>
-                                <h1 className="font-bold text-3xl uppercase lg:text-4xl">
-                                    {phaseLabel}
-                                </h1>
-                                <p className="max-w-readable text-muted-foreground">
-                                    {match.topic}
-                                </p>
-                            </div>
-                            <div className="flex flex-col items-end gap-2 text-right">
-                                <span className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-background/40 px-4 py-2 text-muted-foreground text-xs uppercase tracking-[0.3em]">
-                                    Oxford Mode
-                                    {packInfo ? (
-                                        <>
-                                            <span className="h-3 w-px bg-border/60" />
-                                            <span>{packInfo.name}</span>
-                                        </>
-                                    ) : null}
+                    <div className="hidden flex-col items-end gap-1 text-right lg:flex">
+                        <div className="flex items-center gap-4 text-xs uppercase tracking-wider">
+                            <div>
+                                <span className="text-muted-foreground">
+                                    You:{" "}
                                 </span>
-                                <div className="flex items-center gap-3 text-muted-foreground text-sm">
-                                    <span className="font-medium text-foreground">
-                                        You
-                                    </span>
-                                    <span className="uppercase tracking-[0.35em]">
-                                        vs
-                                    </span>
-                                    <span className="text-muted-foreground">
-                                        Opponent
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="grid gap-4 rounded-xl border border-border/40 bg-background/40 p-4 lg:grid-cols-3">
-                            <div>
-                                <p className="text-muted-foreground text-xs uppercase tracking-[0.3em]">
-                                    Your stance
-                                </p>
-                                <p className="font-semibold text-foreground">
+                                <span className="font-semibold text-foreground">
                                     {myStance}
-                                </p>
+                                </span>
                             </div>
+                            <span className="text-border/60">vs</span>
                             <div>
-                                <p className="text-muted-foreground text-xs uppercase tracking-[0.3em]">
-                                    Opponent stance
-                                </p>
-                                <p className="font-semibold text-foreground">
+                                <span className="text-muted-foreground">
+                                    Opponent:{" "}
+                                </span>
+                                <span className="font-semibold text-foreground">
                                     {opponentStance}
-                                </p>
-                            </div>
-                            <div>
-                                <p className="text-muted-foreground text-xs uppercase tracking-[0.3em]">
-                                    Hint
-                                </p>
-                                <p className="font-mono text-muted-foreground text-sm">
-                                    {match.hint}
-                                </p>
+                                </span>
                             </div>
                         </div>
-                    </header>
-
-                    <section className="space-y-6 rounded-2xl border border-border/40 bg-card/30 p-6 shadow-lg backdrop-blur">
-                        <header className="flex flex-wrap items-center justify-between gap-4">
-                            <div className="space-y-1">
-                                <p className="text-muted-foreground text-xs uppercase tracking-[0.35em]">
-                                    Transcript
-                                </p>
-                                <h2 className="font-semibold text-foreground text-xl">
-                                    Debate Log
-                                </h2>
-                            </div>
-                        </header>
-
-                        <div className="relative max-h-128 space-y-3 overflow-y-auto rounded-xl border border-border/30 bg-background/30 p-4 shadow-inner">
-                            {messages && messages.length > 0 ? (
-                                messages.map(
-                                    (msg: {
-                                        _id: Id<"matchMessages">;
-                                        playerId: Id<"players">;
-                                        phase: string;
-                                        content: string;
-                                        timestamp: number;
-                                        netChars: number;
-                                        pauseUsed: number;
-                                        _creationTime: number;
-                                    }) => {
-                                        const isMine =
-                                            msg.playerId === playerDocId;
-                                        return (
-                                            <article
-                                                className={cn(
-                                                    "max-w-full rounded-xl border border-border/40 px-4 py-3 text-sm shadow-sm",
-                                                    isMine
-                                                        ? "bg-primary/5 text-foreground"
-                                                        : "bg-card/40 text-muted-foreground"
-                                                )}
-                                                key={msg._id}
-                                            >
-                                                <div className="mb-1 flex items-center justify-between text-muted-foreground text-xs uppercase tracking-[0.3em]">
-                                                    <span>
-                                                        {isMine
-                                                            ? "You"
-                                                            : "Opponent"}
-                                                    </span>
-                                                    <span>{msg.phase}</span>
-                                                </div>
-                                                <p className="whitespace-pre-wrap text-foreground text-sm leading-relaxed">
-                                                    {msg.content}
-                                                </p>
-                                            </article>
-                                        );
-                                    }
-                                )
-                            ) : (
-                                <div className="py-10 text-center text-muted-foreground text-sm">
-                                    No messages yet — opening move is yours.
-                                </div>
-                            )}
+                        <div className="text-muted-foreground text-xs uppercase tracking-wider opacity-60">
+                            {match.hint}
                         </div>
-                    </section>
+                    </div>
+                </div>
+            </header>
 
-                    <section className="space-y-4 rounded-2xl border border-border/40 bg-card/30 p-6 shadow-lg backdrop-blur">
-                        <div
-                            className={cn(
-                                "rounded-xl border px-4 py-4 transition-all duration-300",
-                                isMyTurn
-                                    ? "border-primary/50 bg-primary/10 text-foreground shadow-sm"
-                                    : "border-border/50 bg-background/50 text-muted-foreground"
-                            )}
-                            key={guidanceKey}
-                        >
-                            <p className="text-xs uppercase tracking-[0.35em]">
-                                {isMyTurn ? "Your move" : "Hold position"}
+            {/* Main Transcript */}
+            <main
+                className="flex-1 overflow-y-auto scroll-smooth p-6"
+                ref={transcriptRef}
+            >
+                <div className="mx-auto max-w-3xl space-y-6">
+                    {messages && messages.length > 0 ? (
+                        messages.map((msg) => {
+                            const isMine = msg.playerId === playerDocId;
+                            return (
+                                <article
+                                    className={cn(
+                                        "flex flex-col gap-2",
+                                        isMine ? "items-end" : "items-start"
+                                    )}
+                                    key={msg._id}
+                                >
+                                    <div className="flex items-center gap-2 text-muted-foreground text-[10px] uppercase tracking-wider">
+                                        <span>
+                                            {isMine ? "You" : "Opponent"}
+                                        </span>
+                                        <span className="text-border">•</span>
+                                        <span>{msg.phase}</span>
+                                    </div>
+                                    <div
+                                        className={cn(
+                                            "max-w-[85%] border p-4 text-sm leading-relaxed shadow-sm lg:max-w-[75%]",
+                                            isMine
+                                                ? "border-primary/20 bg-primary/5 text-foreground"
+                                                : "border-border/60 bg-card/40 text-muted-foreground"
+                                        )}
+                                    >
+                                        <p className="whitespace-pre-wrap">
+                                            {msg.content}
+                                        </p>
+                                    </div>
+                                </article>
+                            );
+                        })
+                    ) : (
+                        <div className="flex h-full items-center justify-center py-20 opacity-40">
+                            <p className="text-xs uppercase tracking-widest">
+                                Waiting for opening statement
                             </p>
-                            <h3 className="mt-2 font-semibold text-lg uppercase tracking-[0.25em]">
+                        </div>
+                    )}
+                </div>
+            </main>
+
+            {/* Action Footer */}
+            <footer
+                className={cn(
+                    "flex-none border-t border-border/60 bg-background p-6 transition-colors duration-500",
+                    isMyTurn && "border-primary/30 bg-primary/5"
+                )}
+            >
+                <div className="mx-auto max-w-3xl space-y-4">
+                    {/* Guidance & Status */}
+                    <div className="flex items-end justify-between gap-4">
+                        <div className="space-y-1">
+                            <p
+                                className={cn(
+                                    "text-[10px] uppercase tracking-widest font-semibold",
+                                    isMyTurn
+                                        ? "text-primary"
+                                        : "text-muted-foreground"
+                                )}
+                            >
+                                {isMyTurn ? "Your Turn" : "Opponent's Turn"}
+                            </p>
+                            <h3 className="text-sm uppercase tracking-widest text-foreground">
                                 {guidanceCopy.headline}
                             </h3>
-                            <p className="mt-1 text-muted-foreground text-sm leading-relaxed">
+                            <p className="hidden text-xs text-muted-foreground lg:block">
                                 {guidanceCopy.body}
                             </p>
                         </div>
 
-                        <PauseBudgetMeter
-                            cadenceSignal={cadenceSignal}
-                            isMyTurn={isMyTurn && match.status === "active"}
-                            maxBudgetMs={PAUSE_BUDGET_CAP_MS}
-                            pauseBudgetMs={pauseBudget}
-                        />
-
-                        {isMyTurn && match.status === "active" ? (
-                            <form className="space-y-3" onSubmit={handleSubmit}>
-                                <div className="flex items-center justify-between text-muted-foreground text-xs uppercase tracking-[0.3em]">
-                                    <span>Compose Move</span>
-                                    <span>
-                                        {input.length} chars ·{" "}
-                                        {secondsRemaining}s
-                                    </span>
-                                </div>
-                                <TooltipProvider>
-                                    <InputGroup className="w-full flex-col">
-                                        <InputGroupTextarea
-                                            className="font-mono text-sm"
-                                            disabled={
-                                                !isMyTurn || timeRemaining === 0
-                                            }
-                                            id={composeInputId}
-                                            onChange={handleInputChange}
-                                            placeholder="Type your argument..."
-                                            rows={5}
-                                            size="lg"
-                                            value={input}
-                                        />
-                                        <InputGroupAddon
-                                            align="block-end"
-                                            className="justify-end"
-                                        >
-                                            <Tooltip>
-                                                <TooltipTrigger
-                                                    render={
-                                                        <button
-                                                            aria-label="Send move"
-                                                            className={cn(
-                                                                "inline-flex h-10 w-10 items-center justify-center rounded-full bg-foreground text-background transition hover:bg-foreground/90 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40",
-                                                                isSubmitDisabled &&
-                                                                    "cursor-not-allowed bg-foreground/40 hover:bg-foreground/40"
-                                                            )}
-                                                            disabled={
-                                                                isSubmitDisabled
-                                                            }
-                                                            type="submit"
-                                                        >
-                                                            <ArrowUpIcon className="size-4" />
-                                                        </button>
-                                                    }
-                                                />
-                                                <TooltipContent side="top">
-                                                    Submit
-                                                </TooltipContent>
-                                            </Tooltip>
-                                        </InputGroupAddon>
-                                    </InputGroup>
-                                </TooltipProvider>
-                            </form>
-                        ) : (
-                            <div className="rounded-xl border border-border/40 bg-background/40 px-4 py-10 text-center text-muted-foreground text-sm uppercase tracking-[0.35em]">
-                                Waiting for opponent…
-                            </div>
-                        )}
-                    </section>
-                </section>
-
-                <aside className="col-span-full flex flex-col gap-4 lg:col-span-4">
-                    {packInfo ? (
-                        <PackFocusCard
-                            currentPhase={phaseKey}
-                            moveGoals={moveGoals}
-                            packName={packInfo.name}
-                        />
-                    ) : null}
-
-                    <div className="rounded-2xl border border-border/40 bg-card/30 p-6 shadow-lg backdrop-blur">
-                        <p className="text-muted-foreground text-xs uppercase tracking-[0.35em]">
-                            Live Stats
-                        </p>
-                        <div className="mt-4 space-y-3 text-muted-foreground text-sm">
-                            <div className="flex items-center justify-between rounded-lg border border-border/40 bg-background/40 px-3 py-2">
-                                <span className="text-muted-foreground uppercase tracking-[0.3em]">
-                                    Your net chars
-                                </span>
-                                <span className="font-semibold text-foreground">
-                                    {isPlayer1
-                                        ? match.player1NetChars
-                                        : match.player2NetChars}
-                                </span>
-                            </div>
-                            <div className="flex items-center justify-between rounded-lg border border-border/40 bg-background/40 px-3 py-2">
-                                <span className="text-muted-foreground uppercase tracking-[0.3em]">
-                                    Opponent net chars
-                                </span>
-                                <span className="font-semibold text-foreground">
-                                    {isPlayer1
-                                        ? match.player2NetChars
-                                        : match.player1NetChars}
-                                </span>
-                            </div>
-                            <div className="flex items-center justify-between rounded-lg border border-border/40 bg-background/40 px-3 py-2">
-                                <span className="text-muted-foreground uppercase tracking-[0.3em]">
-                                    Pause left
-                                </span>
-                                <span className="font-semibold text-foreground">
-                                    {(pauseBudget / 1000).toFixed(1)}s
-                                </span>
+                        <div className="flex flex-col items-end gap-2">
+                            <PauseBudgetMeter
+                                cadenceSignal={cadenceSignal}
+                                isMyTurn={isMyTurn && match.status === "active"}
+                                maxBudgetMs={PAUSE_BUDGET_CAP_MS}
+                                pauseBudgetMs={pauseBudget}
+                            />
+                            <div className="flex items-center gap-3 text-[10px] uppercase tracking-wider text-muted-foreground">
+                                <span>{input.length} chars</span>
+                                <span>{secondsRemaining}s left</span>
                             </div>
                         </div>
                     </div>
 
-                    <div className="rounded-2xl border border-border/40 bg-card/20 p-6 text-muted-foreground text-xs uppercase tracking-[0.35em] shadow-lg backdrop-blur">
-                        Typing pauses your clock only while you advance the
-                        line. Cadence gaps over 4 seconds burn time—keep the
-                        signal flowing.
-                    </div>
-                </aside>
-            </main>
+                    {/* Input Area */}
+                    {isMyTurn && match.status === "active" ? (
+                        <form
+                            className="relative group"
+                            onSubmit={handleSubmit}
+                        >
+                            <TooltipProvider>
+                                <InputGroup className="w-full">
+                                    <InputGroupTextarea
+                                        autoFocus
+                                        className="min-h-[100px] max-h-[30vh] w-full resize-none border-border/60 bg-background p-4 font-mono text-sm rounded-none! focus:border-primary/50 focus:ring-0"
+                                        disabled={
+                                            !isMyTurn || timeRemaining === 0
+                                        }
+                                        id={composeInputId}
+                                        onChange={handleInputChange}
+                                        onKeyDown={(e) => {
+                                            if (
+                                                e.key === "Enter" &&
+                                                !e.shiftKey
+                                            ) {
+                                                e.preventDefault();
+                                                handleSubmit(e);
+                                            }
+                                        }}
+                                        placeholder="Construct your argument..."
+                                        value={input}
+                                    />
+                                    <InputGroupAddon
+                                        align="block-end"
+                                        className="absolute bottom-3 right-3 z-10"
+                                    >
+                                        <Tooltip>
+                                            <TooltipTrigger
+                                                render={
+                                                    <button
+                                                        aria-label="Send move"
+                                                        className={cn(
+                                                            "flex h-8 w-8 items-center justify-center border border-foreground/10 bg-foreground text-background transition hover:bg-foreground/90 disabled:opacity-50 disabled:hover:bg-foreground",
+                                                            isSubmitDisabled &&
+                                                                "cursor-not-allowed opacity-50"
+                                                        )}
+                                                        disabled={
+                                                            isSubmitDisabled
+                                                        }
+                                                        type="submit"
+                                                    >
+                                                        <ArrowUpIcon className="h-4 w-4" />
+                                                    </button>
+                                                }
+                                            />
+                                            <TooltipContent
+                                                className="text-xs uppercase tracking-wider"
+                                                side="left"
+                                            >
+                                                Submit Move
+                                            </TooltipContent>
+                                        </Tooltip>
+                                    </InputGroupAddon>
+                                </InputGroup>
+                            </TooltipProvider>
+                        </form>
+                    ) : (
+                        <div className="flex h-[100px] w-full items-center justify-center border border-dashed border-border/40 bg-card/10 text-xs uppercase tracking-wider text-muted-foreground">
+                            <span>Opponent is typing...</span>
+                        </div>
+                    )}
+                </div>
+            </footer>
         </div>
     );
 }

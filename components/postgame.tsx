@@ -1,11 +1,5 @@
 "use client";
 
-import {
-    Tooltip,
-    TooltipContent,
-    TooltipProvider,
-    TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { useInterval } from "@/hooks/use-interval";
 import { getAchievementMeta } from "@/lib/achievements-meta";
 import { cn } from "@/lib/cn";
@@ -46,52 +40,36 @@ function ScoreBar({ label, myScore, opponentScore }: ScoreBarProps) {
     const isBetter = myScore > opponentScore;
 
     return (
-        <div className="space-y-2">
-            <div className="flex items-center justify-between text-muted-foreground text-xs uppercase tracking-[0.3em]">
-                <span>{label}</span>
-                <span>
-                    {myScore.toFixed(0)} / {opponentScore.toFixed(0)} (
-                    {diffLabel})
-                </span>
-            </div>
-            <div className="flex gap-2">
-                <div className="flex-1 rounded-full bg-border/40">
+        <div className="flex items-center gap-3 border-b border-border/30 py-2 last:border-0">
+            <span className="w-24 text-[10px] uppercase tracking-widest text-muted-foreground">
+                {label}
+            </span>
+            <div className="flex h-1.5 flex-1 gap-0.5">
+                <div className="flex-1 bg-muted/20">
                     <div
                         className={cn(
-                            "h-2 rounded-full transition-all",
-                            isBetter ? "bg-success" : "bg-muted-foreground/40"
+                            "h-full",
+                            isBetter ? "bg-primary" : "bg-muted-foreground/30"
                         )}
                         style={{ width: `${clampedMyScore}%` }}
                     />
                 </div>
-                <div className="flex-1 rounded-full bg-border/40">
+                <div className="w-px bg-border/50" />
+                <div className="flex-1 bg-muted/20">
                     <div
                         className={cn(
-                            "h-2 rounded-full transition-all",
-                            isBetter
-                                ? "bg-muted-foreground/40"
-                                : "bg-destructive/70"
+                            "h-full",
+                            !isBetter && diff !== 0
+                                ? "bg-destructive/70"
+                                : "bg-muted-foreground/30"
                         )}
                         style={{ width: `${clampedOpponentScore}%` }}
                     />
                 </div>
             </div>
-            <p
-                className={cn(
-                    "text-xs uppercase tracking-[0.3em]",
-                    diff === 0
-                        ? "text-muted-foreground"
-                        : diff > 0
-                          ? "text-success"
-                          : "text-destructive/80"
-                )}
-            >
-                {diff === 0
-                    ? "Parity"
-                    : diff > 0
-                      ? "Advantage secured"
-                      : "Behind this axis"}
-            </p>
+            <div className="flex w-12 justify-end font-mono text-[10px] text-muted-foreground">
+                {diffLabel}
+            </div>
         </div>
     );
 }
@@ -137,20 +115,10 @@ export default function Postgame({ matchId, playerId }: PostgameProps) {
         }
     }, [countdown, isRequeueing, pendingMatchId, router]);
 
-    if (playerDoc === undefined) {
+    if (playerDoc === undefined || match === undefined) {
         return (
-            <div className="flex min-h-screen items-center justify-center bg-background text-muted-foreground">
-                <div className="text-lg uppercase tracking-[0.3em]">
-                    Loading results…
-                </div>
-            </div>
-        );
-    }
-
-    if (match === undefined) {
-        return (
-            <div className="flex min-h-screen items-center justify-center bg-background text-muted-foreground">
-                <div className="text-lg uppercase tracking-[0.3em]">
+            <div className="flex h-screen items-center justify-center bg-background text-muted-foreground">
+                <div className="text-xs uppercase tracking-wider animate-pulse">
                     Loading results…
                 </div>
             </div>
@@ -159,13 +127,13 @@ export default function Postgame({ matchId, playerId }: PostgameProps) {
 
     if (match === null) {
         return (
-            <div className="flex min-h-screen items-center justify-center bg-background text-muted-foreground">
-                <div className="space-y-4 text-center">
-                    <div className="text-lg uppercase tracking-[0.3em]">
+            <div className="flex h-screen items-center justify-center bg-background text-muted-foreground">
+                <div className="space-y-6 text-center">
+                    <div className="text-xs uppercase tracking-wider">
                         Match not found
                     </div>
                     <a
-                        className="inline-flex items-center justify-center rounded-full border border-border/60 px-5 py-2 font-semibold text-xs uppercase tracking-[0.35em] text-foreground transition hover:border-foreground hover:text-foreground/90"
+                        className="inline-flex items-center justify-center border border-border/60 px-6 py-3 font-semibold text-xs uppercase tracking-[0.35em] text-foreground transition hover:bg-foreground hover:text-background"
                         href="/"
                     >
                         Return to lobby
@@ -177,9 +145,9 @@ export default function Postgame({ matchId, playerId }: PostgameProps) {
 
     if (!match.verdict) {
         return (
-            <div className="flex min-h-screen items-center justify-center bg-background text-muted-foreground">
-                <div className="text-lg uppercase tracking-[0.3em]">
-                    Loading results…
+            <div className="flex h-screen items-center justify-center bg-background text-muted-foreground">
+                <div className="text-xs uppercase tracking-wider animate-pulse">
+                    Awaiting verdict…
                 </div>
             </div>
         );
@@ -232,21 +200,19 @@ export default function Postgame({ matchId, playerId }: PostgameProps) {
     });
 
     const latestAchievements = achievements?.latestMatchAchievements ?? [];
-    const totalAchievements = achievements?.totalUnlocked ?? 0;
-    const recentAchievements = achievements?.recent ?? [];
     const hasNewAchievements = latestAchievements.length > 0;
     const countdownActive = pendingMatchId !== null && countdown > 0;
     const playAgainLabel = countdownActive
-        ? `Match ready in ${countdown}`
+        ? `Ready in ${countdown}`
         : isRequeueing
-          ? "Preparing queue…"
-          : "Find another match";
+          ? "Queueing..."
+          : "Next Match";
     const copyLabel =
         copyStatus === "copied"
-            ? "Copied!"
+            ? "Copied"
             : copyStatus === "error"
-              ? "Copy failed"
-              : "Copy recap";
+              ? "Error"
+              : "Copy";
 
     const handlePlayAgain = async () => {
         if (isRequeueing) {
@@ -265,7 +231,7 @@ export default function Postgame({ matchId, playerId }: PostgameProps) {
             router.push("/");
         } catch (error) {
             console.error("Failed to requeue:", error);
-            setJoinError("Couldn't start a new match. Try again in a moment.");
+            setJoinError("Couldn't start. Try again.");
             setIsRequeueing(false);
         }
     };
@@ -310,16 +276,6 @@ export default function Postgame({ matchId, playerId }: PostgameProps) {
                     .join("\n")}`
             );
         }
-        if (hasNewAchievements) {
-            lines.push(
-                `Achievements unlocked: ${latestAchievements
-                    .map(
-                        (entry) => getAchievementMeta(entry.achievementId).title
-                    )
-                    .join(", ")}`
-            );
-        }
-
         const recap = lines.join("\n\n");
 
         if (
@@ -341,118 +297,86 @@ export default function Postgame({ matchId, playerId }: PostgameProps) {
             setTimeout(() => setCopyStatus("idle"), COPY_RESET_MS);
         }
     };
+
     return (
-        <div className="relative h-screen overflow-hidden bg-background text-foreground">
-            <div className="absolute top-1 left-1 z-10 h-8 w-8 border-border/80 border-t-2 border-l-2 lg:h-12 lg:w-12" />
-            <div className="absolute top-1 right-1 z-10 h-8 w-8 border-border/80 border-t-2 border-r-2 lg:h-12 lg:w-12" />
-            <div className="absolute bottom-1 left-1 z-10 h-8 w-8 border-border/80 border-b-2 border-l-2 lg:h-12 lg:w-12" />
-            <div className="absolute right-1 bottom-1 z-10 h-8 w-8 border-border/80 border-r-2 border-b-2 lg:h-12 lg:w-12" />
-
-            <main className="flex h-full flex-col gap-6 overflow-y-auto px-6 py-10 lg:px-12">
-                <section className="flex flex-col gap-6">
-                    <header className="space-y-5 rounded-2xl border border-border/50 bg-card/30 p-6 shadow-lg backdrop-blur">
-                        <div className="flex flex-wrap items-center justify-between gap-4">
-                            <div>
-                                <div className="mb-2 flex items-center gap-2 text-muted-foreground text-xs uppercase tracking-[0.4em]">
-                                    <span>Match Complete</span>
-                                    <div className="h-px w-12 bg-border" />
-                                    <span>{packInfo?.name}</span>
-                                </div>
-                                <h1 className="font-bold text-4xl uppercase">
-                                    {isTie
-                                        ? "Draw"
-                                        : iWon
-                                          ? "Victory"
-                                          : "Defeat"}
-                                </h1>
-                            </div>
+        <div className="h-screen w-screen flex flex-col overflow-hidden bg-background text-foreground font-sans selection:bg-primary/20">
+            {/* Header - Fixed Height */}
+            <header className="flex-none border-b border-border/60 bg-background px-6 py-4 lg:px-8">
+                <div className="flex items-center justify-between">
+                    <div className="space-y-1">
+                        <div className="flex items-center gap-3 text-muted-foreground text-[10px] uppercase tracking-wide">
+                            <span>Result</span>
+                            <span className="h-px w-4 bg-border" />
                             <span
-                                className={cn(
-                                    "rounded-full px-4 py-2 text-xs uppercase tracking-[0.35em]",
-                                    isTie
-                                        ? "border border-warning/40 bg-warning/10 text-warning-foreground"
-                                        : iWon
-                                          ? "border border-success/50 bg-success/15 text-success-foreground"
-                                          : "border border-destructive/50 bg-destructive/10 text-destructive-foreground"
-                                )}
+                                className="truncate max-w-[40vw] font-bold text-foreground"
+                                title={match.topic}
                             >
-                                {(isTie && "Tie") ||
-                                    (iWon ? "You Won" : "You Lost")}
+                                {match.topic}
                             </span>
+                            {averageDelta !== 0 && (
+                                <span
+                                    className={cn(
+                                        "ml-2",
+                                        averageDelta > 0
+                                            ? "text-primary"
+                                            : "text-muted-foreground"
+                                    )}
+                                >
+                                    {averageDelta > 0 ? "+" : ""}
+                                    {averageDelta.toFixed(1)}
+                                </span>
+                            )}
                         </div>
-                        <p className="max-w-readable text-muted-foreground">
-                            {match.topic}
-                        </p>
-                    </header>
-
-                    <div className="space-y-2 rounded-2xl border border-border/40 bg-card/20 p-4 shadow-sm backdrop-blur">
-                        <div className="flex flex-wrap items-center gap-3">
-                            <button
-                                className="inline-flex items-center justify-center rounded-full bg-foreground px-5 py-2 font-semibold text-background text-xs uppercase tracking-[0.35em] transition hover:bg-foreground/90 disabled:cursor-not-allowed disabled:opacity-60"
-                                disabled={isRequeueing}
-                                onClick={handlePlayAgain}
-                                type="button"
-                            >
-                                {playAgainLabel}
-                            </button>
-                            <button
-                                className={cn(
-                                    "inline-flex items-center justify-center rounded-full border px-5 py-2 font-semibold text-xs uppercase tracking-[0.35em] transition",
-                                    copyStatus === "copied"
-                                        ? "border-success/60 text-success hover:border-success/80"
-                                        : copyStatus === "error"
-                                          ? "border-destructive/60 text-destructive hover:border-destructive"
-                                          : "border-border/60 text-foreground hover:border-foreground/70"
-                                )}
-                                onClick={handleCopyRecap}
-                                type="button"
-                            >
-                                {copyLabel}
-                            </button>
-                            <a
-                                className="inline-flex items-center justify-center rounded-full border border-border/60 px-5 py-2 font-semibold text-xs uppercase tracking-[0.35em] text-foreground transition hover:border-foreground hover:text-foreground/90"
-                                href="/"
-                            >
-                                Return to lobby
-                            </a>
-                            <span className="text-muted-foreground text-xs uppercase tracking-[0.35em]">
-                                Total achievements: {totalAchievements}
-                            </span>
-                        </div>
-                        {joinError ? (
-                            <p className="text-destructive text-xs uppercase tracking-[0.3em]">
-                                {joinError}
-                            </p>
-                        ) : null}
-                        {countdownActive ? (
-                            <p className="text-muted-foreground text-xs uppercase tracking-[0.3em]">
-                                Auto-entering next debate…
-                            </p>
-                        ) : null}
+                        <h1 className="font-bold text-4xl uppercase tracking-tighter lg:text-5xl">
+                            {isTie ? "Draw" : iWon ? "Victory" : "Defeat"}
+                        </h1>
                     </div>
 
-                    <section className="space-y-6 rounded-2xl border border-border/50 bg-card/30 p-6 shadow-lg backdrop-blur">
-                        <header className="flex flex-wrap items-center justify-between gap-4">
-                            <div>
-                                <p className="text-muted-foreground text-xs uppercase tracking-[0.35em]">
-                                    Axis Breakdown
-                                </p>
-                                <h2 className="font-semibold text-xl">
-                                    Final Scores
-                                </h2>
-                            </div>
-                            <div className="flex gap-4 text-muted-foreground text-xs uppercase tracking-[0.35em]">
-                                <span>You</span>
-                                <span className="opacity-50">vs</span>
-                                <span>Opponent</span>
-                            </div>
-                            <span className="text-muted-foreground text-xs uppercase tracking-[0.35em]">
-                                Δ Reason score: {averageDelta >= 0 ? "+" : ""}
-                                {averageDelta.toFixed(1)}
+                    <div className="flex items-center gap-3">
+                        <button
+                            className="group inline-flex h-10 items-center justify-center border border-foreground bg-foreground px-6 font-bold text-background text-xs uppercase tracking-wider transition-all hover:bg-background hover:text-foreground disabled:opacity-50"
+                            disabled={isRequeueing}
+                            onClick={handlePlayAgain}
+                            type="button"
+                        >
+                            {playAgainLabel}
+                        </button>
+                        <button
+                            className={cn(
+                                "inline-flex h-10 items-center justify-center border px-6 font-semibold text-xs uppercase tracking-wider transition-colors hover:bg-card/50",
+                                copyStatus === "copied"
+                                    ? "border-success text-success"
+                                    : "border-border text-muted-foreground hover:text-foreground"
+                            )}
+                            onClick={handleCopyRecap}
+                            type="button"
+                        >
+                            {copyLabel}
+                        </button>
+                        {joinError && (
+                            <span className="text-destructive text-xs uppercase tracking-wider animate-pulse">
+                                {joinError}
                             </span>
-                        </header>
+                        )}
+                        <a
+                            className="ml-2 hidden text-xs text-muted-foreground uppercase tracking-wider hover:text-foreground hover:underline decoration-1 underline-offset-4 lg:block"
+                            href="/"
+                        >
+                            Lobby
+                        </a>
+                    </div>
+                </div>
+            </header>
 
-                        <div className="grid gap-4 lg:grid-cols-2">
+            {/* Main Content - 3 Column Grid */}
+            <main className="flex-1 min-h-0 grid grid-cols-1 divide-y divide-border/60 lg:grid-cols-3 lg:divide-y-0 lg:divide-x">
+                {/* Col 1: Metrics */}
+                <div className="flex flex-col min-h-0">
+                    <div className="flex-none border-b border-border/30 bg-muted/10 px-6 py-2 text-[10px] uppercase tracking-wider text-muted-foreground">
+                        Performance Axis
+                    </div>
+                    <div className="flex-1 overflow-y-auto p-6">
+                        <div className="grid gap-0 border border-border/40">
                             <ScoreBar
                                 label="Logic"
                                 myScore={myScores.logic}
@@ -469,7 +393,7 @@ export default function Postgame({ matchId, playerId }: PostgameProps) {
                                 opponentScore={opponentScores.relevance}
                             />
                             <ScoreBar
-                                label="Rhetorical Clarity"
+                                label="Clarity"
                                 myScore={myScores.rhetoricalClarity}
                                 opponentScore={opponentScores.rhetoricalClarity}
                             />
@@ -479,196 +403,145 @@ export default function Postgame({ matchId, playerId }: PostgameProps) {
                                 opponentScore={opponentScores.civility}
                             />
                         </div>
-                    </section>
 
-                    <section className="space-y-4 rounded-2xl border border-border/50 bg-card/30 p-6 shadow-lg backdrop-blur">
-                        <h2 className="font-semibold text-xl">
-                            Judge&apos;s Commentary
-                        </h2>
-                        <p className="whitespace-pre-wrap text-muted-foreground text-sm leading-relaxed">
-                            {match.verdict.explanation}
-                        </p>
-
+                        {/* Named Moves */}
                         {match.verdict.namedMoves.length > 0 && (
-                            <div className="space-y-3">
-                                <p className="text-muted-foreground text-xs uppercase tracking-[0.35em]">
-                                    Named Moves
-                                </p>
-                                <ul className="space-y-2 rounded-xl border border-border/40 bg-background/40 p-4 text-muted-foreground text-sm">
-                                    {namedMovesWithGoal.map((move) => {
-                                        const goalMeta =
-                                            move.goal !== null
-                                                ? MOVE_GOAL_META[move.goal]
-                                                : null;
+                            <div className="mt-8 space-y-4">
+                                <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                                    Key Moves
+                                </div>
+                                <ul className="space-y-4">
+                                    {namedMovesWithGoal.map((move, idx) => {
+                                        const meta = move.goal
+                                            ? MOVE_GOAL_META[move.goal]
+                                            : null;
+                                        const title = meta
+                                            ? meta.label
+                                            : move.move.replace(/_/g, " ");
                                         return (
                                             <li
-                                                className="space-y-1 rounded-lg border border-border/40 bg-card/30 px-4 py-3"
-                                                key={`${move.player}-${move.move}-${move.description}`}
+                                                className="border-l-2 border-primary/40 pl-3"
+                                                key={`${move.move}-${idx}`}
                                             >
-                                                <div className="flex items-center justify-between gap-4">
-                                                    <span className="font-semibold text-foreground uppercase tracking-[0.25em]">
+                                                <div className="flex justify-between">
+                                                    <span className="font-mono text-[10px] uppercase tracking-wider text-foreground">
+                                                        {title}
+                                                    </span>
+                                                    <span className="text-[9px] uppercase tracking-wide text-muted-foreground/70">
                                                         {move.player ===
                                                         perspective
                                                             ? "You"
-                                                            : "Opponent"}
-                                                    </span>
-                                                    <span className="flex-1 text-right text-muted-foreground">
-                                                        {move.move} —{" "}
-                                                        {move.description}
+                                                            : "Opp"}
                                                     </span>
                                                 </div>
-                                                {goalMeta ? (
-                                                    <p
-                                                        className={cn(
-                                                            "text-xs uppercase tracking-[0.3em]",
-                                                            move.aligns
-                                                                ? "text-success"
-                                                                : "text-muted-foreground"
-                                                        )}
-                                                    >
-                                                        {move.aligns
-                                                            ? `Pack goal hit: ${goalMeta.label}`
-                                                            : `Bonus move: ${goalMeta.label}`}
-                                                    </p>
-                                                ) : null}
+                                                <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">
+                                                    {move.description}
+                                                </p>
                                             </li>
                                         );
                                     })}
                                 </ul>
                             </div>
                         )}
-                    </section>
+                    </div>
+                </div>
 
-                    {achievements ? (
-                        <section className="space-y-4 rounded-2xl border border-border/50 bg-card/30 p-6 shadow-lg backdrop-blur">
-                            <header className="flex flex-wrap items-center justify-between gap-3">
-                                <div>
-                                    <p className="text-muted-foreground text-xs uppercase tracking-[0.35em]">
-                                        Achievements
-                                    </p>
-                                    <h2 className="font-semibold text-xl">
-                                        Latest Unlocks
-                                    </h2>
-                                </div>
-                                <span className="text-muted-foreground text-xs uppercase tracking-[0.35em]">
-                                    Lifetime total: {totalAchievements}
-                                </span>
-                            </header>
-
-                            {hasNewAchievements ? (
-                                <TooltipProvider>
-                                    <div className="flex flex-wrap items-center gap-3">
-                                        {latestAchievements.map((entry) => {
-                                            const meta = getAchievementMeta(
-                                                entry.achievementId
-                                            );
-                                            return (
-                                                <Tooltip
-                                                    key={`${entry.achievementId}-${entry.unlockedAt}`}
-                                                >
-                                                    <TooltipTrigger className="inline-flex items-center gap-2 rounded-full border border-success/40 bg-success/10 px-4 py-2 font-semibold text-success text-xs uppercase tracking-[0.35em]">
-                                                        <span>{meta.icon}</span>
-                                                        <span>
-                                                            {meta.title}
-                                                        </span>
-                                                    </TooltipTrigger>
-                                                    <TooltipContent side="bottom">
-                                                        {meta.description}
-                                                    </TooltipContent>
-                                                </Tooltip>
-                                            );
-                                        })}
-                                    </div>
-                                </TooltipProvider>
-                            ) : (
-                                <p className="text-muted-foreground text-sm">
-                                    No fresh achievements this round—keep
-                                    hunting for distinctive moves to unlock
-                                    more.
-                                </p>
-                            )}
-
-                            {recentAchievements.length > 0 ? (
-                                <div className="space-y-2">
-                                    <p className="text-muted-foreground text-xs uppercase tracking-[0.35em]">
-                                        Recent Highlights
-                                    </p>
-                                    <ul className="space-y-2 text-muted-foreground text-xs uppercase tracking-[0.3em]">
-                                        {recentAchievements
-                                            .slice(0, 5)
-                                            .map((entry) => {
-                                                const meta = getAchievementMeta(
-                                                    entry.achievementId
-                                                );
-                                                const timestamp = new Date(
-                                                    entry.unlockedAt
-                                                ).toLocaleTimeString([], {
-                                                    hour: "2-digit",
-                                                    minute: "2-digit",
-                                                });
-                                                return (
-                                                    <li
-                                                        className="flex items-center justify-between rounded-lg border border-border/30 bg-background/40 px-3 py-2"
-                                                        key={`${entry.achievementId}-${entry.unlockedAt}-recent`}
-                                                    >
-                                                        <span>
-                                                            {meta.title}
-                                                        </span>
-                                                        <span className="text-muted-foreground">
-                                                            {timestamp}
-                                                        </span>
-                                                    </li>
-                                                );
-                                            })}
-                                    </ul>
-                                </div>
-                            ) : null}
-                        </section>
-                    ) : null}
-                </section>
-                {leaderboard && leaderboard.length > 0 ? (
-                    <section className="space-y-4 rounded-2xl border border-border/50 bg-card/30 p-6 shadow-lg backdrop-blur">
-                        <div className="flex flex-wrap items-center justify-between gap-3">
-                            <div>
-                                <p className="text-muted-foreground text-xs uppercase tracking-[0.35em]">
-                                    Leaderboard
-                                </p>
-                                <h3 className="font-semibold text-muted-foreground text-sm uppercase tracking-[0.3em]">
-                                    {packInfo?.name}
-                                </h3>
-                            </div>
-                            <span className="font-mono text-muted-foreground text-xs uppercase tracking-[0.35em]">
-                                Top 10
-                            </span>
+                {/* Col 2: Verdict */}
+                <div className="flex flex-col min-h-0">
+                    <div className="flex-none border-b border-border/30 bg-muted/10 px-6 py-2 text-[10px] uppercase tracking-wider text-muted-foreground">
+                        Judge Verdict
+                    </div>
+                    <div className="flex-1 overflow-y-auto p-6">
+                        <div className="prose prose-sm prose-invert max-w-none">
+                            <p className="whitespace-pre-wrap text-sm leading-loose text-muted-foreground">
+                                {match.verdict.explanation}
+                            </p>
                         </div>
-                        <ul className="space-y-2 text-muted-foreground text-sm">
-                            {leaderboard.slice(0, 10).map(
-                                (
-                                    entry: {
-                                        playerId: Id<"players">;
-                                        reasonScore: number;
-                                        totalMatches: number;
-                                        wins: number;
-                                    },
-                                    idx: number
-                                ) => (
-                                    <li
-                                        className="flex items-center justify-between rounded-lg border border-border/40 bg-background/40 px-3 py-2"
-                                        key={entry.playerId}
-                                    >
-                                        <span className="font-semibold text-foreground">
-                                            #{idx + 1}
-                                        </span>
-                                        <span className="text-xs uppercase tracking-[0.25em]">
-                                            {entry.reasonScore.toFixed(1)} pts •{" "}
-                                            {entry.wins}W/{entry.totalMatches}
-                                        </span>
-                                    </li>
-                                )
-                            )}
-                        </ul>
-                    </section>
-                ) : null}
+                    </div>
+                </div>
+
+                {/* Col 3: Meta/Rankings */}
+                <div className="flex flex-col min-h-0">
+                    <div className="flex-none border-b border-border/30 bg-muted/10 px-6 py-2 text-[10px] uppercase tracking-wider text-muted-foreground">
+                        Pack Rankings
+                    </div>
+                    <div className="flex-1 overflow-y-auto p-0">
+                        {/* Leaderboard */}
+                        {leaderboard && leaderboard.length > 0 && (
+                            <table className="w-full text-left text-xs">
+                                <thead className="sticky top-0 bg-background text-[9px] uppercase tracking-wider text-muted-foreground shadow-sm">
+                                    <tr>
+                                        <th className="px-6 py-2 font-medium">
+                                            #
+                                        </th>
+                                        <th className="px-6 py-2 font-medium text-right">
+                                            Score
+                                        </th>
+                                        <th className="px-6 py-2 font-medium text-right">
+                                            W/L
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-border/30">
+                                    {leaderboard
+                                        .slice(0, 10)
+                                        .map((entry, idx) => (
+                                            <tr
+                                                className="group hover:bg-muted/5"
+                                                key={entry.playerId}
+                                            >
+                                                <td className="px-6 py-2 font-mono text-muted-foreground group-hover:text-foreground">
+                                                    {(idx + 1)
+                                                        .toString()
+                                                        .padStart(2, "0")}
+                                                </td>
+                                                <td className="px-6 py-2 text-right font-mono">
+                                                    {entry.reasonScore.toFixed(
+                                                        1
+                                                    )}
+                                                </td>
+                                                <td className="px-6 py-2 text-right text-[10px] text-muted-foreground">
+                                                    {entry.wins}/
+                                                    {entry.totalMatches}
+                                                </td>
+                                            </tr>
+                                        ))}
+                                </tbody>
+                            </table>
+                        )}
+
+                        {/* Achievements */}
+                        {hasNewAchievements && (
+                            <div className="border-t border-border/60 p-6">
+                                <div className="mb-3 text-[10px] uppercase tracking-wider text-primary">
+                                    Unlocked
+                                </div>
+                                <div className="grid gap-2">
+                                    {latestAchievements.map((entry) => {
+                                        const meta = getAchievementMeta(
+                                            entry.achievementId
+                                        );
+                                        return (
+                                            <div
+                                                className="flex items-center gap-3 border border-primary/20 bg-primary/5 px-3 py-2"
+                                                key={entry.achievementId}
+                                            >
+                                                <span className="text-lg">
+                                                    {meta.icon}
+                                                </span>
+                                                <div className="min-w-0">
+                                                    <h4 className="truncate font-bold text-[10px] uppercase tracking-wider text-primary">
+                                                        {meta.title}
+                                                    </h4>
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </div>
             </main>
         </div>
     );
