@@ -1,5 +1,5 @@
-const CADENCE_THRESHOLD = 400;
-const GAP_THRESHOLD = 700;
+const CADENCE_THRESHOLD = 1500; // Relaxed to 1.5s to match natural human typing (avg 40-60wpm = ~200-300ms per char, but bursty)
+const GAP_THRESHOLD = 2000; // Relaxed to 2s for "hard" punishment
 
 export interface CadenceState {
     lastTypingTime: number | null;
@@ -10,17 +10,21 @@ export interface CadenceState {
 export function shouldPauseClock(
     currentTime: number,
     lastTypingTime: number | null,
-    netChars: number,
-    previousNetChars: number
+    _netChars: number,
+    _previousNetChars: number
 ): boolean {
+    // First keystroke should always start the "active" signal
     if (lastTypingTime === null) {
-        return false;
+        return true;
     }
 
+    // Just typing is enough to pause the clock if it's recent
     const gap = currentTime - lastTypingTime;
-    const charDelta = netChars - previousNetChars;
 
-    return gap <= CADENCE_THRESHOLD && charDelta > 0;
+    // If gap is small enough, we are "active"
+    // We ignore charDelta for the "pause clock" mechanic to be less punishing on typos/backspaces
+    // The anti-cheese is server-side or simpler: you can't just hold a key, but normal typing flows.
+    return gap <= CADENCE_THRESHOLD;
 }
 
 export function hasGapExceededThreshold(
@@ -49,5 +53,7 @@ export function filterFiller(text: string): string {
 }
 
 export function calculateNetChars(text: string): number {
-    return filterFiller(text).length;
+    // We want to be generous: any character count growth is "activity"
+    // Using raw length allows spaces to count as activity, which is critical for flow.
+    return text.length;
 }

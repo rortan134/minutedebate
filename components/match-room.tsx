@@ -209,7 +209,6 @@ export default function MatchRoom({
     const playerDocId = playerDoc?._id ?? null;
 
     const [input, setInput] = useState("");
-    const [cadenceSignal, setCadenceSignal] = useState(0);
 
     const lastTypingTimeRef = useRef<number | null>(null);
     const netCharsRef = useRef(0);
@@ -325,13 +324,6 @@ export default function MatchRoom({
                     newNetChars,
                     netCharsRef.current
                 );
-
-                if (shouldPause && lastTypingTimeRef.current) {
-                    const gap = timestamp - lastTypingTimeRef.current;
-                    setCadenceSignal(Math.min(100, (gap / 400) * 100));
-                } else {
-                    setCadenceSignal(0);
-                }
 
                 lastTypingTimeRef.current = timestamp;
                 netCharsRef.current = newNetChars;
@@ -540,7 +532,7 @@ export default function MatchRoom({
                         </div>
                         <div className="flex flex-col items-end gap-2">
                             <PauseBudgetMeter
-                                cadenceSignal={cadenceSignal}
+                                cadenceSignal={0}
                                 isMyTurn={isMyTurn && match.status === "active"}
                                 maxBudgetMs={PAUSE_BUDGET_CAP_MS}
                                 pauseBudgetMs={pauseBudget}
