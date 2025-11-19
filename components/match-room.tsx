@@ -538,7 +538,6 @@ export default function MatchRoom({
                                 {guidanceCopy.body}
                             </p>
                         </div>
-
                         <div className="flex flex-col items-end gap-2">
                             <PauseBudgetMeter
                                 cadenceSignal={cadenceSignal}

@@ -439,22 +439,6 @@ export default function Lobby() {
                                     </div>
                                     <div>
                                         <h3 className="mb-2 font-semibold text-foreground text-sm uppercase">
-                                            Cadence Gating System
-                                        </h3>
-                                        <p className="text-muted-foreground text-sm leading-relaxed">
-                                            Your clock pauses only while you're
-                                            actively typing at a steady cadence
-                                            (≥1 character every ~350ms). Stop
-                                            typing for more than 600–800ms, and
-                                            your time resumes. You get a hard 4s
-                                            pause reserve—once exhausted,
-                                            thinking burns time no matter what.
-                                            Keep the signal flowing to maximize
-                                            your argument time.
-                                        </p>
-                                    </div>
-                                    <div>
-                                        <h3 className="mb-2 font-semibold text-foreground text-sm uppercase">
                                             AI Judge Evaluation
                                         </h3>
                                         <p className="text-muted-foreground text-sm leading-relaxed">
