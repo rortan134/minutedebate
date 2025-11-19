@@ -439,7 +439,6 @@ export default function MatchRoom({
                             {match.topic}
                         </p>
                     </div>
-
                     <div className="hidden flex-col items-end gap-1 text-right lg:flex">
                         <div className="flex items-center gap-4 text-xs uppercase tracking-wider">
                             <div>
@@ -466,8 +465,6 @@ export default function MatchRoom({
                     </div>
                 </div>
             </header>
-
-            {/* Main Transcript */}
             <main
                 className="flex-1 overflow-y-auto scroll-smooth p-6"
                 ref={transcriptRef}
@@ -515,8 +512,6 @@ export default function MatchRoom({
                     )}
                 </div>
             </main>
-
-            {/* Action Footer */}
             <footer
                 className={cn(
                     "flex-none border-t border-border/60 bg-background p-6 transition-colors duration-500",
@@ -524,7 +519,6 @@ export default function MatchRoom({
                 )}
             >
                 <div className="mx-auto max-w-3xl space-y-4">
-                    {/* Guidance & Status */}
                     <div className="flex items-end justify-between gap-4">
                         <div className="space-y-1">
                             <p
@@ -558,8 +552,6 @@ export default function MatchRoom({
                             </div>
                         </div>
                     </div>
-
-                    {/* Input Area */}
                     {isMyTurn && match.status === "active" ? (
                         <form
                             className="relative group"
