@@ -1,19 +1,16 @@
 import { cn } from "@/lib/cn";
 
-const WARNING_THRESHOLD_MS = 1500;
 const CRITICAL_THRESHOLD_MS = 600;
 
-export interface PauseBudgetMeterProps {
+interface PauseBudgetMeterProps {
     readonly pauseBudgetMs: number;
     readonly maxBudgetMs: number;
-    readonly cadenceSignal: number;
     readonly isMyTurn: boolean;
 }
 
 export function PauseBudgetMeter({
     pauseBudgetMs,
     maxBudgetMs,
-    cadenceSignal,
     isMyTurn,
 }: PauseBudgetMeterProps) {
     // Hide when not active turn to reduce noise
@@ -24,7 +21,6 @@ export function PauseBudgetMeter({
     const clampedBudget = Math.max(0, Math.min(pauseBudgetMs, maxBudgetMs));
     const percentRemaining =
         maxBudgetMs === 0 ? 0 : (clampedBudget / maxBudgetMs) * 100;
-    const secondsRemaining = clampedBudget / 1000;
 
     // Minimal color coding: only show "danger" when low
     const isCritical = clampedBudget <= CRITICAL_THRESHOLD_MS;

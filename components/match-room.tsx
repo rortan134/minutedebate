@@ -9,11 +9,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { api } from "../convex/_generated/api";
 import type { Id } from "../convex/_generated/dataModel";
 import { TOPIC_PACKS } from "../convex/topic_packs";
-import {
-    calculateNetChars,
-    filterFiller,
-    shouldPauseClock,
-} from "../lib/cadence";
+import { calculateNetChars, filterFiller } from "../lib/cadence";
 import { getOrCreatePlayerId } from "../lib/player-id";
 import { useNow } from "../lib/use-now";
 import { PauseBudgetMeter } from "./pause-budget-meter";
@@ -318,13 +314,6 @@ export default function MatchRoom({
             const newNetChars = calculateNetChars(newText);
 
             if (newNetChars > netCharsRef.current) {
-                const shouldPause = shouldPauseClock(
-                    timestamp,
-                    lastTypingTimeRef.current,
-                    newNetChars,
-                    netCharsRef.current
-                );
-
                 lastTypingTimeRef.current = timestamp;
                 netCharsRef.current = newNetChars;
 
@@ -532,7 +521,6 @@ export default function MatchRoom({
                         </div>
                         <div className="flex flex-col items-end gap-2">
                             <PauseBudgetMeter
-                                cadenceSignal={0}
                                 isMyTurn={isMyTurn && match.status === "active"}
                                 maxBudgetMs={PAUSE_BUDGET_CAP_MS}
                                 pauseBudgetMs={pauseBudget}

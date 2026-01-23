@@ -7,8 +7,8 @@
 
 @theme {
     --fallback-fonts:
-        Helvetica Neue, helvetica, arial, Hiragino Kaku Gothic ProN, Meiryo, MS
-        Gothic;
+        Helvetica Neue, helvetica, arial, Hiragino Kaku Gothic ProN, Meiryo,
+        MS Gothic;
     --font-sans:
         var(--font-saira-condensed, var(--fallback-fonts, sans-serif)),
         sans-serif;
@@ -285,8 +285,7 @@
 
     canvas {
         touch-action: none;
-        image-rendering: pixelated;
-        /* biome-ignore lint/suspicious/noDuplicateProperties: vendor-specific clarity for Firefox */
+        /* image-rendering: pixelated; */
         image-rendering: -moz-crisp-edges;
     }
 }
