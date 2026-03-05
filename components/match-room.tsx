@@ -9,7 +9,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { api } from "../convex/_generated/api";
 import type { Id } from "../convex/_generated/dataModel";
 import { TOPIC_PACKS } from "../convex/topic_packs";
-import { calculateNetChars, filterFiller } from "../lib/cadence";
+import { calculateNetChars, filterFiller } from "../lib/chars";
 import { getOrCreatePlayerId } from "../lib/player-id";
 import { useNow } from "../lib/use-now";
 import { PauseBudgetMeter } from "./pause-budget-meter";

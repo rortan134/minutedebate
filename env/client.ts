@@ -12,4 +12,5 @@ export const clientEnv = createEnv({
         NEXT_PUBLIC_APP_NAME: process.env.NEXT_PUBLIC_APP_NAME,
         NEXT_PUBLIC_CONVEX_URL: process.env.NEXT_PUBLIC_CONVEX_URL,
     },
+    emptyStringAsUndefined: true,
 });

@@ -1,6 +1,7 @@
 "use client";
 
 import { useInterval } from "@/hooks/use-interval";
+import copy from "copy-to-clipboard";
 import { getAchievementMeta } from "@/lib/achievements-meta";
 import { cn } from "@/lib/cn";
 import {
@@ -236,7 +237,7 @@ export default function Postgame({ matchId, playerId }: PostgameProps) {
         }
     };
 
-    const handleCopyRecap = async () => {
+    const handleCopyRecap = () => {
         if (!match.verdict) {
             return;
         }
@@ -277,25 +278,9 @@ export default function Postgame({ matchId, playerId }: PostgameProps) {
             );
         }
         const recap = lines.join("\n\n");
-
-        if (
-            typeof navigator === "undefined" ||
-            !navigator.clipboard?.writeText
-        ) {
-            setCopyStatus("error");
-            setTimeout(() => setCopyStatus("idle"), COPY_RESET_MS);
-            return;
-        }
-
-        try {
-            await navigator.clipboard.writeText(recap);
-            setCopyStatus("copied");
-            setTimeout(() => setCopyStatus("idle"), COPY_RESET_MS);
-        } catch (error) {
-            console.error("Failed to copy recap:", error);
-            setCopyStatus("error");
-            setTimeout(() => setCopyStatus("idle"), COPY_RESET_MS);
-        }
+        const ok = copy(recap);
+        setCopyStatus(ok ? "copied" : "error");
+        setTimeout(() => setCopyStatus("idle"), COPY_RESET_MS);
     };
 
     return (
@@ -411,7 +396,7 @@ export default function Postgame({ matchId, playerId }: PostgameProps) {
                                     Key Moves
                                 </div>
                                 <ul className="space-y-4">
-                                    {namedMovesWithGoal.map((move, idx) => {
+                                    {namedMovesWithGoal.map((move) => {
                                         const meta = move.goal
                                             ? MOVE_GOAL_META[move.goal]
                                             : null;
@@ -421,7 +406,7 @@ export default function Postgame({ matchId, playerId }: PostgameProps) {
                                         return (
                                             <li
                                                 className="border-l-2 border-primary/40 pl-3"
-                                                key={`${move.move}-${idx}`}
+                                                key={move.id ?? `${move.move}-${move.player}-${move.goal}`}
                                             >
                                                 <div className="flex justify-between">
                                                     <span className="font-mono text-[10px] uppercase tracking-wider text-foreground">

@@ -9,4 +9,5 @@ export const serverEnv = createEnv({
         OPENAI_API_KEY: z.string(),
     },
     experimental__runtimeEnv: process.env,
+    emptyStringAsUndefined: true,
 });

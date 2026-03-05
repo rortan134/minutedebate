@@ -1,13 +1,13 @@
-export type AchievementId =
+type AchievementId =
     | "win_via_reductio"
     | "clean_burden_transfer"
     | "spot_and_fix_equivocation"
     | (string & {});
 
-export interface AchievementMeta {
-    readonly title: string;
+interface AchievementMeta {
     readonly description: string;
     readonly icon: string;
+    readonly title: string;
 }
 
 const ACHIEVEMENT_META: Record<AchievementId, AchievementMeta> = {

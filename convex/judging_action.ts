@@ -2,6 +2,7 @@
 "use node";
 
 import { v } from "convex/values";
+import { nanoid } from "nanoid";
 import OpenAI from "openai";
 import { serverEnv } from "../env/server";
 import { internal } from "./_generated/api";
@@ -139,6 +140,11 @@ Focus on teaching: explain exactly what moves led to victory or loss.`;
             throw new Error(`Failed to parse OpenAI response: ${error}`);
         }
 
+        const namedMovesWithIds = verdict.namedMoves.map((m) => ({
+            ...m,
+            id: nanoid(),
+        }));
+
         await ctx.runMutation(internal.judging.saveVerdict, {
             matchId: args.matchId,
             verdict: {
@@ -146,7 +152,7 @@ Focus on teaching: explain exactly what moves led to victory or loss.`;
                 player1Scores: verdict.player1Scores,
                 player2Scores: verdict.player2Scores,
                 explanation: verdict.explanation,
-                namedMoves: verdict.namedMoves,
+                namedMoves: namedMovesWithIds,
             },
         });
 

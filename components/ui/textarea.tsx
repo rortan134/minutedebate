@@ -1,22 +1,30 @@
 "use client";
 
-import { Field as FieldPrimitive } from "@base-ui-components/react/field";
-import { mergeProps } from "@base-ui-components/react/merge-props";
+import { Field as FieldPrimitive } from "@base-ui/react/field";
+import { mergeProps } from "@base-ui/react/merge-props";
+import { useComposedRefs } from "motion/react";
 import type * as React from "react";
 
+import { useAutoResizeTextArea } from "@/hooks/use-textarea-autoresize";
 import { cn } from "@/lib/cn";
 
 type TextareaProps = React.ComponentProps<"textarea"> & {
     size?: "sm" | "default" | "lg" | number;
     unstyled?: boolean;
+    maxHeight?: number;
 };
 
 function Textarea({
     className,
     size = "default",
     unstyled = false,
+    maxHeight,
+    ref,
     ...props
 }: TextareaProps) {
+    const textAreaRef = useAutoResizeTextArea(maxHeight);
+    const composedRef = useComposedRefs(textAreaRef, ref);
+
     return (
         <span
             className={
@@ -41,6 +49,7 @@ function Textarea({
                         )}
                         data-slot="textarea"
                         {...mergeProps(defaultProps, props)}
+                        ref={composedRef}
                     />
                 )}
             />

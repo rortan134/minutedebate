@@ -3,9 +3,9 @@ import { cn } from "@/lib/cn";
 const CRITICAL_THRESHOLD_MS = 600;
 
 interface PauseBudgetMeterProps {
-    readonly pauseBudgetMs: number;
-    readonly maxBudgetMs: number;
     readonly isMyTurn: boolean;
+    readonly maxBudgetMs: number;
+    readonly pauseBudgetMs: number;
 }
 
 export function PauseBudgetMeter({

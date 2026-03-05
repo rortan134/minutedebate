@@ -68,6 +68,7 @@ export default defineSchema({
                 explanation: v.string(),
                 namedMoves: v.array(
                     v.object({
+                        id: v.optional(v.string()),
                         player: v.union(
                             v.literal("player1"),
                             v.literal("player2")

@@ -3,9 +3,9 @@ import type React from "react";
 import { useMemo } from "react";
 
 interface SpinnerProps {
-    n?: number; // number of .tri elements
-    m?: number; // number of .lyr per .tri
     className?: string;
+    m?: number; // number of .lyr per .tri
+    n?: number; // number of .tri elements
 }
 
 const Spinner = ({ n = 6, m = 3, className = "" }: SpinnerProps) => {

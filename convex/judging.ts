@@ -16,6 +16,7 @@ export type JudgeVerdict = {
     player2Scores: JudgeAxisScores;
     explanation: string;
     namedMoves: Array<{
+        id?: string;
         player: "player1" | "player2";
         move: string;
         description: string;
@@ -154,6 +155,7 @@ export const saveVerdict = internalMutation({
             explanation: v.string(),
             namedMoves: v.array(
                 v.object({
+                    id: v.optional(v.string()),
                     player: v.union(v.literal("player1"), v.literal("player2")),
                     move: v.string(),
                     description: v.string(),
