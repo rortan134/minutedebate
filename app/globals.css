@@ -166,10 +166,10 @@
     }
 
     * {
-        @apply border-border outline-ring/50;
+        touch-action: pan-x pan-y;
         scrollbar-color: var(--border) transparent;
         scrollbar-width: thin;
-        touch-action: pan-x pan-y;
+        @apply border-border outline-ring/50;
     }
 
     :root {
@@ -226,9 +226,9 @@
 
     svg {
         flex-shrink: 0;
+        vertical-align: middle;
         stroke-linecap: round;
         stroke-linejoin: round;
-        vertical-align: middle;
     }
 
     svg path {
@@ -370,15 +370,15 @@
     @apply pointer-events-none absolute inset-0 transform-gpu overflow-hidden transition-opacity group-active:opacity-0;
 
     &::before {
-        @apply absolute top-0 left-0 h-full w-14 transform-gpu bg-white/50 blur-[30px] duration-700 content-[""] motion-safe:block;
         transform: translateX(calc(150% * -1)) skewX(-15deg);
         animation: ShimmerWave 3s infinite;
+        @apply absolute top-0 left-0 h-full w-14 transform-gpu bg-white/50 blur-[30px] duration-700 content-[""] motion-safe:block;
     }
 
     &::after {
-        @apply absolute top-0 left-0 h-full w-7 transform-gpu bg-white/30 blur-[5px] duration-700 motion-safe:block;
         transform: translateX(calc(150% * -1)) skewX(-15deg);
         animation: ShimmerWave 3s infinite;
+        @apply absolute top-0 left-0 h-full w-7 transform-gpu bg-white/30 blur-[5px] duration-700 motion-safe:block;
     }
 }
 

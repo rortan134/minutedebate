@@ -9,8 +9,8 @@ const CONFIG = {
 type SitemapEntry = MetadataRoute.Sitemap[number];
 
 interface SitemapRoute {
-    path: string;
     changeFrequency?: SitemapEntry["changeFrequency"];
+    path: string;
     priority?: number;
 }
 
