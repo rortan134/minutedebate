@@ -1,4 +1,6 @@
-import ConvexClientProvider from "@/components/convex-provider";
+import "./globals.css";
+
+import { ConvexClientProvider } from "@/components/convex-provider";
 import { clientEnv } from "@/env/client";
 import { cn } from "@/lib/cn";
 import {
@@ -23,7 +25,6 @@ import type {
     WebApplication,
     WithContext,
 } from "schema-dts";
-import "./globals.css";
 
 const sairaCondensed = Saira_Condensed({
     subsets: ["latin"],
