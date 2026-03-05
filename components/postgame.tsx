@@ -406,7 +406,10 @@ export default function Postgame({ matchId, playerId }: PostgameProps) {
                                         return (
                                             <li
                                                 className="border-l-2 border-primary/40 pl-3"
-                                                key={move.id ?? `${move.move}-${move.player}-${move.goal}`}
+                                                key={
+                                                    move.id ??
+                                                    `${move.move}-${move.player}-${move.goal}`
+                                                }
                                             >
                                                 <div className="flex justify-between">
                                                     <span className="font-mono text-[10px] uppercase tracking-wider text-foreground">
