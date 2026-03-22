@@ -5,7 +5,7 @@ import * as z from "zod";
 export const serverEnv = createEnv({
     extends: [vercel()],
     server: {
-        CONVEX_URL: z.string(),
+        CONVEX_URL: z.url(),
         OPENAI_API_KEY: z.string(),
     },
     experimental__runtimeEnv: process.env,

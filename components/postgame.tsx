@@ -1,7 +1,6 @@
 "use client";
 
 import { useInterval } from "@/hooks/use-interval";
-import copy from "copy-to-clipboard";
 import { getAchievementMeta } from "@/lib/achievements-meta";
 import { cn } from "@/lib/cn";
 import {
@@ -10,6 +9,7 @@ import {
     type MoveKey,
 } from "@/lib/move-goals";
 import { useMutation, useQuery } from "convex/react";
+import copy from "copy-to-clipboard";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { api } from "../convex/_generated/api";
@@ -41,12 +41,12 @@ function ScoreBar({ label, myScore, opponentScore }: ScoreBarProps) {
     const isBetter = myScore > opponentScore;
 
     return (
-        <div className="flex items-center gap-3 border-b border-border/30 py-2 last:border-0">
-            <span className="w-24 text-[10px] uppercase tracking-widest text-muted-foreground">
+        <div className="flex min-w-0 flex-col gap-2 border-b border-border/30 py-2 last:border-0 sm:flex-row sm:items-center sm:gap-3">
+            <span className="w-full shrink-0 text-[10px] text-muted-foreground uppercase tracking-widest sm:w-24">
                 {label}
             </span>
-            <div className="flex h-1.5 flex-1 gap-0.5">
-                <div className="flex-1 bg-muted/20">
+            <div className="flex min-w-0 h-1.5 flex-1 gap-0.5">
+                <div className="min-w-0 flex-1 bg-muted/20">
                     <div
                         className={cn(
                             "h-full",
@@ -55,8 +55,8 @@ function ScoreBar({ label, myScore, opponentScore }: ScoreBarProps) {
                         style={{ width: `${clampedMyScore}%` }}
                     />
                 </div>
-                <div className="w-px bg-border/50" />
-                <div className="flex-1 bg-muted/20">
+                <div className="w-px shrink-0 bg-border/50" />
+                <div className="min-w-0 flex-1 bg-muted/20">
                     <div
                         className={cn(
                             "h-full",
@@ -68,7 +68,7 @@ function ScoreBar({ label, myScore, opponentScore }: ScoreBarProps) {
                     />
                 </div>
             </div>
-            <div className="flex w-12 justify-end font-mono text-[10px] text-muted-foreground">
+            <div className="flex w-full shrink-0 justify-end font-mono text-[10px] text-muted-foreground sm:w-12">
                 {diffLabel}
             </div>
         </div>
@@ -78,7 +78,7 @@ function ScoreBar({ label, myScore, opponentScore }: ScoreBarProps) {
 const COUNTDOWN_SECONDS = 3;
 const COPY_RESET_MS = 2400;
 
-export default function Postgame({ matchId, playerId }: PostgameProps) {
+function Postgame({ matchId, playerId }: PostgameProps) {
     const router = useRouter();
     const match = useQuery(api.matchmaking.getMatch, { matchId });
     const playerDoc = useQuery(api.matchmaking.getPlayerDoc, { playerId });
@@ -286,14 +286,14 @@ export default function Postgame({ matchId, playerId }: PostgameProps) {
     return (
         <div className="h-screen w-screen flex flex-col overflow-hidden bg-background text-foreground font-sans selection:bg-primary/20">
             {/* Header - Fixed Height */}
-            <header className="flex-none border-b border-border/60 bg-background px-6 py-4 lg:px-8">
-                <div className="flex items-center justify-between">
-                    <div className="space-y-1">
-                        <div className="flex items-center gap-3 text-muted-foreground text-[10px] uppercase tracking-wide">
-                            <span>Result</span>
-                            <span className="h-px w-4 bg-border" />
+            <header className="flex-none border-b border-border/60 bg-background px-4 py-4 sm:px-6 lg:px-8">
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                    <div className="min-w-0 space-y-1">
+                        <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1 text-[10px] text-muted-foreground uppercase tracking-wide">
+                            <span className="shrink-0">Result</span>
+                            <span className="h-px w-4 shrink-0 bg-border" />
                             <span
-                                className="truncate max-w-[40vw] font-bold text-foreground"
+                                className="min-w-0 truncate font-bold text-foreground sm:max-w-[50vw] lg:max-w-[40vw]"
                                 title={match.topic}
                             >
                                 {match.topic}
@@ -301,7 +301,7 @@ export default function Postgame({ matchId, playerId }: PostgameProps) {
                             {averageDelta !== 0 && (
                                 <span
                                     className={cn(
-                                        "ml-2",
+                                        "shrink-0",
                                         averageDelta > 0
                                             ? "text-primary"
                                             : "text-muted-foreground"
@@ -312,43 +312,47 @@ export default function Postgame({ matchId, playerId }: PostgameProps) {
                                 </span>
                             )}
                         </div>
-                        <h1 className="font-bold text-4xl uppercase tracking-tighter lg:text-5xl">
+                        <h1 className="font-bold text-3xl uppercase tracking-tighter sm:text-4xl lg:text-5xl">
                             {isTie ? "Draw" : iWon ? "Victory" : "Defeat"}
                         </h1>
                     </div>
 
-                    <div className="flex items-center gap-3">
-                        <button
-                            className="group inline-flex h-10 items-center justify-center border border-foreground bg-foreground px-6 font-bold text-background text-xs uppercase tracking-wider transition-all hover:bg-background hover:text-foreground disabled:opacity-50"
-                            disabled={isRequeueing}
-                            onClick={handlePlayAgain}
-                            type="button"
-                        >
-                            {playAgainLabel}
-                        </button>
-                        <button
-                            className={cn(
-                                "inline-flex h-10 items-center justify-center border px-6 font-semibold text-xs uppercase tracking-wider transition-colors hover:bg-card/50",
-                                copyStatus === "copied"
-                                    ? "border-success text-success"
-                                    : "border-border text-muted-foreground hover:text-foreground"
+                    <div className="flex w-full min-w-0 flex-col gap-2 sm:w-auto sm:flex-row sm:flex-wrap sm:items-center sm:justify-end sm:gap-3">
+                        <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:flex-wrap">
+                            <button
+                                className="inline-flex h-10 w-full items-center justify-center border border-foreground bg-foreground px-6 font-bold text-background text-xs uppercase tracking-wider transition-all hover:bg-background hover:text-foreground disabled:opacity-50 sm:w-auto"
+                                disabled={isRequeueing}
+                                onClick={handlePlayAgain}
+                                type="button"
+                            >
+                                {playAgainLabel}
+                            </button>
+                            <button
+                                className={cn(
+                                    "inline-flex h-10 w-full items-center justify-center border px-6 font-semibold text-xs uppercase tracking-wider transition-colors hover:bg-card/50 sm:w-auto",
+                                    copyStatus === "copied"
+                                        ? "border-success text-success"
+                                        : "border-border text-muted-foreground hover:text-foreground"
+                                )}
+                                onClick={handleCopyRecap}
+                                type="button"
+                            >
+                                {copyLabel}
+                            </button>
+                        </div>
+                        <div className="flex flex-wrap items-center gap-2 sm:contents">
+                            {joinError && (
+                                <span className="text-destructive text-xs uppercase tracking-wider animate-pulse">
+                                    {joinError}
+                                </span>
                             )}
-                            onClick={handleCopyRecap}
-                            type="button"
-                        >
-                            {copyLabel}
-                        </button>
-                        {joinError && (
-                            <span className="text-destructive text-xs uppercase tracking-wider animate-pulse">
-                                {joinError}
-                            </span>
-                        )}
-                        <a
-                            className="ml-2 hidden text-xs text-muted-foreground uppercase tracking-wider hover:text-foreground hover:underline decoration-1 underline-offset-4 lg:block"
-                            href="/"
-                        >
-                            Lobby
-                        </a>
+                            <a
+                                className="inline-flex text-xs text-muted-foreground uppercase tracking-wider decoration-1 underline-offset-4 transition-colors hover:text-foreground hover:underline sm:ml-2"
+                                href="/"
+                            >
+                                Lobby
+                            </a>
+                        </div>
                     </div>
                 </div>
             </header>
@@ -357,10 +361,10 @@ export default function Postgame({ matchId, playerId }: PostgameProps) {
             <main className="flex-1 min-h-0 grid grid-cols-1 divide-y divide-border/60 lg:grid-cols-3 lg:divide-y-0 lg:divide-x">
                 {/* Col 1: Metrics */}
                 <div className="flex flex-col min-h-0">
-                    <div className="flex-none border-b border-border/30 bg-muted/10 px-6 py-2 text-[10px] uppercase tracking-wider text-muted-foreground">
+                    <div className="flex-none border-b border-border/30 bg-muted/10 px-4 py-2 text-[10px] uppercase tracking-wider text-muted-foreground sm:px-6">
                         Performance Axis
                     </div>
-                    <div className="flex-1 overflow-y-auto p-6">
+                    <div className="flex-1 overflow-y-auto p-4 sm:p-6">
                         <div className="grid gap-0 border border-border/40">
                             <ScoreBar
                                 label="Logic"
@@ -436,10 +440,10 @@ export default function Postgame({ matchId, playerId }: PostgameProps) {
 
                 {/* Col 2: Verdict */}
                 <div className="flex flex-col min-h-0">
-                    <div className="flex-none border-b border-border/30 bg-muted/10 px-6 py-2 text-[10px] uppercase tracking-wider text-muted-foreground">
+                    <div className="flex-none border-b border-border/30 bg-muted/10 px-4 py-2 text-[10px] uppercase tracking-wider text-muted-foreground sm:px-6">
                         Judge Verdict
                     </div>
-                    <div className="flex-1 overflow-y-auto p-6">
+                    <div className="flex-1 overflow-y-auto p-4 sm:p-6">
                         <div className="prose prose-sm prose-invert max-w-none">
                             <p className="whitespace-pre-wrap text-sm leading-loose text-muted-foreground">
                                 {match.verdict.explanation}
@@ -450,7 +454,7 @@ export default function Postgame({ matchId, playerId }: PostgameProps) {
 
                 {/* Col 3: Meta/Rankings */}
                 <div className="flex flex-col min-h-0">
-                    <div className="flex-none border-b border-border/30 bg-muted/10 px-6 py-2 text-[10px] uppercase tracking-wider text-muted-foreground">
+                    <div className="flex-none border-b border-border/30 bg-muted/10 px-4 py-2 text-[10px] uppercase tracking-wider text-muted-foreground sm:px-6">
                         Pack Rankings
                     </div>
                     <div className="flex-1 overflow-y-auto p-0">
@@ -459,13 +463,13 @@ export default function Postgame({ matchId, playerId }: PostgameProps) {
                             <table className="w-full text-left text-xs">
                                 <thead className="sticky top-0 bg-background text-[9px] uppercase tracking-wider text-muted-foreground shadow-sm">
                                     <tr>
-                                        <th className="px-6 py-2 font-medium">
+                                        <th className="px-4 py-2 font-medium sm:px-6">
                                             #
                                         </th>
-                                        <th className="px-6 py-2 font-medium text-right">
+                                        <th className="px-4 py-2 text-right font-medium sm:px-6">
                                             Score
                                         </th>
-                                        <th className="px-6 py-2 font-medium text-right">
+                                        <th className="px-4 py-2 text-right font-medium sm:px-6">
                                             W/L
                                         </th>
                                     </tr>
@@ -478,17 +482,17 @@ export default function Postgame({ matchId, playerId }: PostgameProps) {
                                                 className="group hover:bg-muted/5"
                                                 key={entry.playerId}
                                             >
-                                                <td className="px-6 py-2 font-mono text-muted-foreground group-hover:text-foreground">
+                                                <td className="px-4 py-2 font-mono text-muted-foreground group-hover:text-foreground sm:px-6">
                                                     {(idx + 1)
                                                         .toString()
                                                         .padStart(2, "0")}
                                                 </td>
-                                                <td className="px-6 py-2 text-right font-mono">
+                                                <td className="px-4 py-2 text-right font-mono sm:px-6">
                                                     {entry.reasonScore.toFixed(
                                                         1
                                                     )}
                                                 </td>
-                                                <td className="px-6 py-2 text-right text-[10px] text-muted-foreground">
+                                                <td className="px-4 py-2 text-right text-[10px] text-muted-foreground sm:px-6">
                                                     {entry.wins}/
                                                     {entry.totalMatches}
                                                 </td>
@@ -500,7 +504,7 @@ export default function Postgame({ matchId, playerId }: PostgameProps) {
 
                         {/* Achievements */}
                         {hasNewAchievements && (
-                            <div className="border-t border-border/60 p-6">
+                            <div className="border-t border-border/60 p-4 sm:p-6">
                                 <div className="mb-3 text-[10px] uppercase tracking-wider text-primary">
                                     Unlocked
                                 </div>
@@ -534,3 +538,5 @@ export default function Postgame({ matchId, playerId }: PostgameProps) {
         </div>
     );
 }
+
+export { Postgame };

@@ -6,7 +6,7 @@ export const clientEnv = createEnv({
     extends: [vercel()],
     client: {
         NEXT_PUBLIC_APP_NAME: z.string(),
-        NEXT_PUBLIC_CONVEX_URL: z.string(),
+        NEXT_PUBLIC_CONVEX_URL: z.url(),
     },
     runtimeEnv: {
         NEXT_PUBLIC_APP_NAME: process.env.NEXT_PUBLIC_APP_NAME,

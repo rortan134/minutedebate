@@ -1,21 +1,25 @@
-import Lobby from "@/components/lobby";
+import { Lobby } from "@/components/lobby";
+import { WEBSITE_KEYWORDS, WEBSITE_NAME, WEBSITE_URL } from "@/lib/constants";
 import type { Metadata } from "next";
 
+const homeTitle = "Free online 1v1 debate game";
+const homeDescription =
+    "Join the queue for real-time 1v1 debate matches. Practice argumentation in one-minute 1v1 rounds — no signup.";
+
 export const metadata: Metadata = {
-    title: "Play Now",
-    description:
-        "Join the queue for real-time 1v1 debate matches. Master structured argumentation in one-minute bursts with AI-powered judging and skill-based achievements.",
+    description: homeDescription,
+    keywords: WEBSITE_KEYWORDS,
     openGraph: {
-        title: "MinuteDebate | Play Now",
-        description:
-            "Join the queue for real-time 1v1 debate matches. Master structured argumentation in one-minute bursts.",
+        description: homeDescription,
+        title: `${homeTitle} | ${WEBSITE_NAME}`,
         type: "website",
+        url: WEBSITE_URL,
     },
+    title: homeTitle,
     twitter: {
         card: "summary_large_image",
-        title: "MinuteDebate | Play Now",
-        description:
-            "Join the queue for real-time 1v1 debate matches. Master structured argumentation.",
+        description: homeDescription,
+        title: `${homeTitle} | ${WEBSITE_NAME}`,
     },
 };
 

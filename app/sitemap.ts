@@ -1,7 +1,8 @@
+import { WEBSITE_URL } from "@/lib/constants";
 import type { MetadataRoute } from "next";
 
-const CONFIG = {
-    WEBSITE_URL: "https://minutedebate.com",
+const DEFAULT_CONFIG = {
+    WEBSITE_URL,
     DEFAULT_CHANGE_FREQUENCY: "always" as const,
     DEFAULT_PRIORITY: 1,
 } as const;
@@ -14,31 +15,24 @@ interface SitemapRoute {
     priority?: number;
 }
 
-// Static routes with metadata
-export const routes: readonly SitemapRoute[] = [
+const STATIC_ROUTES: readonly SitemapRoute[] = [
     { path: "", priority: 1 },
 ] as const;
 
 function createRouteEntries(entries: readonly SitemapRoute[]): SitemapEntry[] {
     return entries.map((route) => ({
-        url: `${CONFIG.WEBSITE_URL}${route.path}`,
+        url: `${DEFAULT_CONFIG.WEBSITE_URL}${route.path}`,
         lastModified: new Date().toISOString(),
         changeFrequency:
-            route.changeFrequency ?? CONFIG.DEFAULT_CHANGE_FREQUENCY,
-        priority: route.priority ?? CONFIG.DEFAULT_PRIORITY,
+            route.changeFrequency ?? DEFAULT_CONFIG.DEFAULT_CHANGE_FREQUENCY,
+        priority: route.priority ?? DEFAULT_CONFIG.DEFAULT_PRIORITY,
     }));
 }
 
 export default function sitemap(): MetadataRoute.Sitemap {
     try {
-        return createRouteEntries(routes);
+        return createRouteEntries(STATIC_ROUTES);
     } catch (error) {
-        console.error("Error generating sitemap:", error);
-        // Return at least the static routes in case of error
-        return createRouteEntries(routes);
+        throw new Error(`Failed to create sitemap entries: ${error}`);
     }
 }
-
-// Enforces that this route is used as static rendering
-// @see https://nextjs.org/docs/app/api-reference/file-conventions/route-segment-config#dynamic
-export const dynamic = "error";

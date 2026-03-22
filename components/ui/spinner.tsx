@@ -1,3 +1,5 @@
+"use client";
+
 import { cn } from "@/lib/cn";
 import type React from "react";
 import { useMemo } from "react";

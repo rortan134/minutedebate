@@ -1,22 +1,6 @@
-"use client";
-
-import Postgame from "@/components/postgame";
 import { LoadingContainer } from "@/components/ui/loading-container";
-import type { Id } from "@/convex/_generated/dataModel";
-import { getOrCreatePlayerId } from "@/lib/player-id";
-import { Suspense, use, useState } from "react";
-
-function PostgameWrapper({ params }: { params: Promise<{ matchId: string }> }) {
-    const resolvedParams = use(params);
-    const [playerId] = useState(() => getOrCreatePlayerId());
-
-    return (
-        <Postgame
-            matchId={resolvedParams.matchId as Id<"matches">}
-            playerId={playerId}
-        />
-    );
-}
+import { Suspense } from "react";
+import { PostgameContainer } from "./client";
 
 export default function ResultsPage({
     params,
@@ -25,7 +9,7 @@ export default function ResultsPage({
 }) {
     return (
         <Suspense fallback={<LoadingContainer />}>
-            <PostgameWrapper params={params} />
+            <PostgameContainer params={params} />
         </Suspense>
     );
 }

@@ -1,4 +1,8 @@
-import { APP_NAME, WEBSITE_DESCRIPTION, WEBSITE_URL } from "@/lib/constants";
+import {
+    WEBSITE_DESCRIPTION,
+    WEBSITE_NAME,
+    WEBSITE_URL,
+} from "@/lib/constants";
 import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
@@ -24,10 +28,10 @@ export default function manifest(): MetadataRoute.Manifest {
             },
         ],
         lang: "en-US",
-        name: APP_NAME,
+        name: WEBSITE_NAME,
         orientation: "portrait-primary",
         prefer_related_applications: false,
-        short_name: APP_NAME,
+        short_name: WEBSITE_NAME,
         start_url: "/?utm_source=pwa_homescreen&__pwa=1",
         theme_color: "#fffbf0",
         scope: WEBSITE_URL,

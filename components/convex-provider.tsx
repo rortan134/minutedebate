@@ -2,12 +2,12 @@
 
 import { clientEnv } from "@/env/client";
 import { ConvexProvider, ConvexReactClient } from "convex/react";
-import type { ReactNode } from "react";
+import type * as React from "react";
 
 const convex = new ConvexReactClient(clientEnv.NEXT_PUBLIC_CONVEX_URL);
 
-function ConvexClientProvider({ children }: { children: ReactNode }) {
-    return <ConvexProvider client={convex}>{children}</ConvexProvider>;
+function ConvexClientProvider(props: React.PropsWithChildren) {
+    return <ConvexProvider client={convex} {...props} />;
 }
 
 export { ConvexClientProvider };

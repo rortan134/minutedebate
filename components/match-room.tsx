@@ -8,7 +8,6 @@ import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { api } from "../convex/_generated/api";
 import type { Id } from "../convex/_generated/dataModel";
-import { TOPIC_PACKS } from "../convex/topic_packs";
 import { calculateNetChars, filterFiller } from "../lib/chars";
 import { getOrCreatePlayerId } from "../lib/player-id";
 import { useNow } from "../lib/use-now";
@@ -190,10 +189,7 @@ interface MatchRoomProps {
     playerId: string;
 }
 
-export default function MatchRoom({
-    matchId,
-    playerId: playerIdProp,
-}: MatchRoomProps) {
+function MatchRoom({ matchId, playerId: playerIdProp }: MatchRoomProps) {
     const router = useRouter();
     const [playerId] = useState(() => playerIdProp || getOrCreatePlayerId());
     const match = useQuery(api.matchmaking.getMatch, { matchId });
@@ -381,8 +377,6 @@ export default function MatchRoom({
         ? match.player2Stance
         : match.player1Stance;
     const timeRemaining = Math.max(0, match.phaseEndTime - now);
-    const packInfo =
-        TOPIC_PACKS[match.topicPack as keyof typeof TOPIC_PACKS] ?? null;
     const guidanceCopy = resolveGuidance(phaseKey, isMyTurn);
     const secondsRemaining = Math.max(0, Math.ceil(timeRemaining / 1000));
     const isSubmitDisabled = input.trim().length === 0 || timeRemaining === 0;
@@ -398,29 +392,36 @@ export default function MatchRoom({
     return (
         <div className="flex h-screen flex-col overflow-hidden bg-background text-foreground">
             {/* Header */}
-            <header className="flex-none border-b border-border/60 bg-card/20 backdrop-blur-sm px-6 py-4">
-                <div className="flex items-start justify-between gap-6">
-                    <div className="space-y-1">
-                        <div className="flex items-center gap-3 text-muted-foreground text-xs uppercase tracking-widest">
-                            <span>{packInfo?.name ?? "MinuteDebate"}</span>
-                            <span className="h-3 w-px bg-border/60" />
+            <header className="flex-none border-b border-border/60 bg-card/20 px-4 py-4 backdrop-blur-sm sm:px-6">
+                <div className="flex items-start justify-between gap-4 sm:gap-6">
+                    <div className="min-w-0 flex-1 space-y-1">
+                        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 uppercase tracking-widest">
+                            <h1 className="font-bold text-base uppercase tracking-tight sm:text-lg lg:text-xl">
+                                {phaseLabel}
+                            </h1>
+                            <span className="h-3 w-px shrink-0 bg-border/60" />
                             <span
                                 className={cn(
+                                    "shrink-0 text-base sm:text-lg lg:text-xl",
                                     timeRemaining < 10_000 &&
-                                        "text-destructive animate-pulse"
+                                        "animate-pulse text-destructive"
                                 )}
                             >
                                 {formatTime(timeRemaining)}
                             </span>
                         </div>
-                        <h1 className="font-bold text-lg uppercase tracking-tight lg:text-xl">
-                            {phaseLabel}
-                        </h1>
-                        <p className="line-clamp-1 max-w-md text-muted-foreground text-sm">
-                            {match.topic}
+                        <p className="line-clamp-2 max-w-full text-foreground font-medium text-base sm:line-clamp-1 sm:max-w-md">
+                            "{match.topic}"
                         </p>
+                        <div className="pt-1 text-[10px] uppercase tracking-wider text-muted-foreground lg:hidden">
+                            <span className="font-semibold text-foreground">
+                                You: {myStance}
+                            </span>
+                            <span className="mx-1.5 text-border/60">·</span>
+                            <span>Opp: {opponentStance}</span>
+                        </div>
                     </div>
-                    <div className="hidden flex-col items-end gap-1 text-right lg:flex">
+                    <div className="hidden min-w-0 flex-col items-end gap-1 text-right lg:flex">
                         <div className="flex items-center gap-4 text-xs uppercase tracking-wider">
                             <div>
                                 <span className="text-muted-foreground">
@@ -447,7 +448,7 @@ export default function MatchRoom({
                 </div>
             </header>
             <main
-                className="flex-1 overflow-y-auto scroll-smooth p-6"
+                className="flex-1 overflow-y-auto scroll-smooth p-4 sm:p-6"
                 ref={transcriptRef}
             >
                 <div className="mx-auto max-w-3xl space-y-6">
@@ -495,7 +496,7 @@ export default function MatchRoom({
             </main>
             <footer
                 className={cn(
-                    "flex-none border-t border-border/60 bg-background p-6 transition-colors duration-500",
+                    "flex-none border-t border-border/60 bg-background p-4 transition-colors duration-500 sm:p-6",
                     isMyTurn && "border-primary/30 bg-primary/5"
                 )}
             >
@@ -512,10 +513,7 @@ export default function MatchRoom({
                             >
                                 {isMyTurn ? "Your Turn" : "Opponent's Turn"}
                             </p>
-                            <h3 className="text-sm uppercase tracking-widest text-foreground">
-                                {guidanceCopy.headline}
-                            </h3>
-                            <p className="hidden text-xs text-muted-foreground lg:block">
+                            <p className="line-clamp-2 text-xs text-muted-foreground lg:line-clamp-none">
                                 {guidanceCopy.body}
                             </p>
                         </div>
@@ -602,3 +600,5 @@ export default function MatchRoom({
         </div>
     );
 }
+
+export { MatchRoom };

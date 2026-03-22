@@ -40,7 +40,7 @@ import StarBorder from "./ui/star-border";
 const QUEUE_OWNER_KEY = "minutedebate_queue_owner";
 const QUEUE_STARTED_AT_KEY = "minutedebate_queue_started_at";
 
-export default function Lobby() {
+function Lobby() {
     const [playerId] = useState(() => getOrCreatePlayerId());
     const joinQueue = useMutation(api.matchmaking.joinQueue);
     const leaveQueue = useMutation(api.matchmaking.leaveQueue);
@@ -236,8 +236,8 @@ export default function Lobby() {
             <div className="absolute top-1 right-1 z-20 h-8 w-8 border-border/90 border-t-2 border-r-2 lg:h-12 lg:w-12" />
             <div className="absolute bottom-1 left-1 z-20 h-8 w-8 border-border/90 border-b-2 border-l-2 lg:h-12 lg:w-12" />
             <div className="absolute right-1 bottom-1 z-20 h-8 w-8 border-border/90 border-r-2 border-b-2 lg:h-12 lg:w-12" />
-            <main className="isolate grid size-full grid-cols-12 grid-rows-1">
-                <div className="col-span-4 col-start-1 row-start-1 flex w-full max-w-lg flex-col gap-4 pt-8 pl-9">
+            <main className="relative isolate grid size-full min-h-0 grid-cols-1 grid-rows-1 lg:grid-cols-12">
+                <div className="relative z-10 row-start-1 flex w-full min-w-0 max-w-lg flex-col gap-4 px-4 pt-8 sm:px-6 lg:col-span-4 lg:col-start-1 lg:max-w-lg lg:px-0 lg:pl-9 lg:pr-4">
                     {/* Top decorative line */}
                     <div className="mb-2 flex items-center gap-2 opacity-60">
                         <div className="h-px w-8 bg-white" />
@@ -248,15 +248,15 @@ export default function Lobby() {
                     </div>
                     <div className="-ml-0.5 relative">
                         <div className="-right-3 dither-pattern absolute top-0 bottom-0 hidden w-1 opacity-40 lg:block" />
-                        <h1 className="font-bold text-5xl text-foreground uppercase">
+                        <h1 className="font-bold text-3xl text-foreground uppercase sm:text-4xl lg:text-5xl">
                             One minute. One topic. One winner.
                         </h1>
-                        <h2 className="mt-2 font-semibold text-muted-foreground text-xl uppercase">
+                        <h2 className="mt-2 font-semibold text-muted-foreground text-base uppercase lg:text-xl">
                             Put your debating skills to the test — Play now!
                         </h2>
                     </div>
                     <span className="-mt-1 font-mono text-[8px] text-foreground/60 lg:text-[10px]">
-                        EST. 2025
+                        EST. 2026
                     </span>
                     {/* Decorative dots pattern - desktop only */}
                     <div className="-mt-3 hidden gap-1 opacity-40 lg:flex">
@@ -270,49 +270,62 @@ export default function Lobby() {
                         )}
                     </div>
                     {packInfo ? (
-                        <h2 className="mt-6 inline-flex items-center font-semibold uppercase text-xl text-foreground">
-                            <span className="text-muted-foreground">
+                        <div className="mt-6 flex min-w-0 flex-col gap-1 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-2">
+                            <span className="shrink-0 font-semibold text-muted-foreground text-sm uppercase tracking-wide sm:text-base">
                                 Today&apos;s Category:
                             </span>
-                            &nbsp;{packInfo.name}
-                            <Tooltip>
-                                <TooltipTrigger>
-                                    <Info className="size-4 ml-1" />
-                                </TooltipTrigger>
-                                <TooltipPopup>
-                                    <p className="text-muted-foreground text-base">
-                                        All debates today will feature topics
-                                        from this category. The category rotates
-                                        daily, determining which topics and
-                                        achievements are available.
-                                    </p>
-                                </TooltipPopup>
-                            </Tooltip>
-                        </h2>
+                            <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
+                                <span className="font-semibold text-foreground text-lg uppercase sm:text-xl">
+                                    {packInfo.name}
+                                </span>
+                                <Tooltip>
+                                    <TooltipTrigger>
+                                        <Info className="size-4 shrink-0 text-muted-foreground" />
+                                    </TooltipTrigger>
+                                    <TooltipPopup>
+                                        <p className="text-muted-foreground text-base">
+                                            All debates today will feature
+                                            topics from this category. The
+                                            category rotates daily, determining
+                                            which topics and achievements are
+                                            available.
+                                        </p>
+                                    </TooltipPopup>
+                                </Tooltip>
+                            </div>
+                        </div>
                     ) : null}
                     {achievementsTicker.length > 0 ? (
                         <TooltipProvider>
-                            <div className="bg-card/30 border border-border/50 flex flex-wrap gap-2 items-center mt-3 rounded-full px-4 py-2 text-muted-foreground text-xs uppercase">
-                                <span>Recent achievements</span>
-                                {achievementsTicker.map((entry) => {
-                                    const meta = getAchievementMeta(
-                                        entry.achievementId
-                                    );
-                                    return (
-                                        <Tooltip
-                                            key={`${entry.achievementId}-${entry.unlockedAt}`}
-                                        >
-                                            <TooltipTrigger className="bg-background/60 cursor-help inline-flex items-center gap-1 rounded-full px-3 py-1 text-foreground transition-colors hover:bg-background/80 active:bg-background active:scale-[0.95]">
-                                                <span>{meta.icon}</span>
-                                                <span>{meta.title}</span>
-                                            </TooltipTrigger>
-                                            <TooltipContent side="bottom">
-                                                {meta.description}
-                                            </TooltipContent>
-                                        </Tooltip>
-                                    );
-                                })}
-                                <span className="ml-auto text-[10px] text-muted-foreground uppercase tracking-[0.4em]">
+                            <div className="mt-3 flex min-w-0 flex-col gap-2 rounded-2xl border border-border/50 bg-card/30 px-4 py-3 text-muted-foreground text-xs uppercase sm:flex-row sm:flex-wrap sm:items-center sm:rounded-full sm:py-2">
+                                <div className="flex w-full min-w-0 flex-wrap items-center gap-2 sm:w-auto sm:flex-1">
+                                    <span className="shrink-0">
+                                        Recent achievements
+                                    </span>
+                                    <div className="flex min-w-0 flex-1 flex-wrap gap-2 sm:flex-initial">
+                                        {achievementsTicker.map((entry) => {
+                                            const meta = getAchievementMeta(
+                                                entry.achievementId
+                                            );
+                                            return (
+                                                <Tooltip
+                                                    key={`${entry.achievementId}-${entry.unlockedAt}`}
+                                                >
+                                                    <TooltipTrigger className="inline-flex cursor-help items-center gap-1 rounded-full bg-background/60 px-3 py-1 text-foreground transition-colors hover:bg-background/80 active:scale-[0.95] active:bg-background">
+                                                        <span>{meta.icon}</span>
+                                                        <span className="max-w-[12rem] truncate sm:max-w-none">
+                                                            {meta.title}
+                                                        </span>
+                                                    </TooltipTrigger>
+                                                    <TooltipContent side="bottom">
+                                                        {meta.description}
+                                                    </TooltipContent>
+                                                </Tooltip>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+                                <span className="shrink-0 text-[10px] text-muted-foreground uppercase tracking-[0.4em] sm:ml-auto">
                                     Total {totalAchievements}
                                 </span>
                             </div>
@@ -338,7 +351,7 @@ export default function Lobby() {
                                         <StarBorder
                                             as="button"
                                             className={cn(
-                                                "relative transform-gpu w-full text-left cursor-pointer overflow-hidden duration-100 px-6 py-4 font-semibold uppercase text-foreground text-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed",
+                                                "relative transform-gpu w-full cursor-pointer overflow-hidden px-6 py-4 text-left font-semibold text-foreground text-lg uppercase transition-all duration-100 sm:text-xl disabled:cursor-not-allowed disabled:opacity-50",
                                                 {
                                                     "hover:scale-[1.01]": !(
                                                         isJoining || isQueued
@@ -423,10 +436,10 @@ export default function Lobby() {
                             <div className="space-y-4">
                                 <div className="space-y-3">
                                     <div>
-                                        <h3 className="mb-2 font-semibold text-foreground text-sm uppercase">
+                                        <h3 className="mb-2 font-semibold text-foreground text-base uppercase">
                                             Oxford Cadence Format
                                         </h3>
-                                        <p className="text-muted-foreground text-sm leading-relaxed">
+                                        <p className="text-muted-foreground text-base leading-relaxed">
                                             Each match follows a strict timing
                                             structure: 15-second opening
                                             statements for each player, followed
@@ -438,10 +451,10 @@ export default function Lobby() {
                                         </p>
                                     </div>
                                     <div>
-                                        <h3 className="mb-2 font-semibold text-foreground text-sm uppercase">
+                                        <h3 className="mb-2 font-semibold text-foreground text-base uppercase">
                                             AI Judge Evaluation
                                         </h3>
-                                        <p className="text-muted-foreground text-sm leading-relaxed">
+                                        <p className="text-muted-foreground text-base leading-relaxed">
                                             An AI judge analyzes your entire
                                             debate across five axes: logic
                                             (soundness of reasoning), evidence
@@ -455,10 +468,10 @@ export default function Lobby() {
                                         </p>
                                     </div>
                                     <div>
-                                        <h3 className="mb-2 font-semibold text-foreground text-sm uppercase">
+                                        <h3 className="mb-2 font-semibold text-foreground text-base uppercase">
                                             Winning Strategy
                                         </h3>
-                                        <p className="text-muted-foreground text-sm leading-relaxed">
+                                        <p className="text-muted-foreground text-base leading-relaxed">
                                             Victory comes from maintaining a
                                             clear throughline, making sharp
                                             distinctions early, and responding
@@ -467,20 +480,6 @@ export default function Lobby() {
                                             obligation back to your opponent. In
                                             summations, synthesize your
                                             strongest points.
-                                        </p>
-                                    </div>
-                                    <div>
-                                        <h3 className="mb-2 font-semibold text-foreground text-sm uppercase">
-                                            Achievements & Mastery
-                                        </h3>
-                                        <p className="text-muted-foreground text-sm leading-relaxed">
-                                            Unlock achievements by executing
-                                            distinctive moves: win via reductio,
-                                            perform clean burden transfers, or
-                                            spot and fix equivocation. Each pack
-                                            rewards specific move types—master
-                                            them to climb the leaderboards and
-                                            build your reason score.
                                         </p>
                                     </div>
                                 </div>
@@ -516,7 +515,7 @@ export default function Lobby() {
                     </div>
                 </div>
                 <div
-                    className="-z-10 fade-mask fade-left-1/4 pointer-events-none relative col-span-full col-start-4 row-start-1 select-none"
+                    className="fade-mask fade-left-1/4 pointer-events-none absolute inset-0 -z-10 select-none lg:relative lg:col-span-9 lg:col-start-4 lg:row-start-1 lg:inset-auto lg:z-auto"
                     role="presentation"
                 >
                     <AsciiOne />
@@ -534,3 +533,5 @@ export default function Lobby() {
         </div>
     );
 }
+
+export { Lobby };

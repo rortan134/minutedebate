@@ -1,14 +1,7 @@
-"use client";
-
-import type { ReactNode } from "react";
-
 import { Spinner } from "@/components/ui/spinner";
+import type { PropsWithChildren } from "react";
 
-interface LoadingContainerProps {
-    children?: ReactNode;
-}
-
-export function LoadingContainer({ children }: LoadingContainerProps) {
+export function LoadingContainer({ children }: PropsWithChildren) {
     return (
         <div className="flex size-full flex-1 flex-col items-center justify-center gap-4">
             <Spinner className="scale-50" />

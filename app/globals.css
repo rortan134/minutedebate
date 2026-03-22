@@ -212,7 +212,8 @@
         @apply bg-background text-foreground;
         isolation: isolate;
         overscroll-behavior: none;
-        overflow-wrap: anywhere;
+        overflow-wrap: break-word;
+        word-break: normal;
         position: relative;
         scrollbar-width: none;
         text-align: left;
@@ -360,10 +361,6 @@
 
 @utility max-w-readable {
     @apply max-w-[calc(1080px*0.25*3)];
-}
-
-@utility max-w-readable-lg {
-    @apply max-w-[calc(1080px*0.25*4)];
 }
 
 @utility animate-shine {

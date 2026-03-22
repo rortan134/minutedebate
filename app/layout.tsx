@@ -4,9 +4,9 @@ import { ConvexClientProvider } from "@/components/convex-provider";
 import { clientEnv } from "@/env/client";
 import { cn } from "@/lib/cn";
 import {
-    APP_NAME,
     WEBSITE_DESCRIPTION,
     WEBSITE_KEYWORDS,
+    WEBSITE_NAME,
     WEBSITE_SLOGAN,
     WEBSITE_TITLE,
     WEBSITE_URL,
@@ -36,7 +36,7 @@ const siteUrl = WEBSITE_URL;
 const heroImage = new URL("/android-chrome-512x512.png", siteUrl).toString();
 const ogImage = new URL("/opengraph-image.png", siteUrl).toString();
 
-const appName = APP_NAME;
+const appName = WEBSITE_NAME;
 const title = WEBSITE_TITLE;
 const description = WEBSITE_DESCRIPTION;
 const keywords = WEBSITE_KEYWORDS;
@@ -50,9 +50,6 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-    alternates: {
-        canonical: "/",
-    },
     appLinks: {
         web: { should_fallback: true, url: siteUrl },
     },
@@ -162,10 +159,10 @@ const organizationJsonLd: WithContext<Organization> = {
     name: appName,
     url: siteUrl,
     logo: heroImage,
-    // sameAs: [
-    //     `https://twitter.com/${appName.toLowerCase()}`,
-    //     `https://github.com/${appName.toLowerCase()}`,
-    // ],
+    sameAs: [
+        "https://x.com/gsmmtt",
+        "https://github.com/rortan134/minutedebate",
+    ],
 };
 
 const brandJsonLd: WithContext<Brand> = {
