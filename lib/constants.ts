@@ -3,6 +3,8 @@ export const WEBSITE_NAME = process.env.NEXT_PUBLIC_APP_NAME ?? "MinuteDebate";
 export const WEBSITE_URL =
     process.env.NEXT_PUBLIC_SITE_URL ?? "https://minutedebate.com";
 
+export const SOURCE_CODE_URL = "https://github.com/rortan134/minutedebate";
+
 export const WEBSITE_DESCRIPTION =
     "Real-time 1v1 debates that last exactly one minute: Master the art of structured argumentation with an AI judge scoring logic, evidence, and rhetoric in real-time anonymous matches. Free — no signup.";
 

@@ -1,8 +1,8 @@
 import "./style.css";
 
 import { Frame, FramePanel } from "@/components/ui/frame";
-import { WEBSITE_NAME, WEBSITE_URL } from "@/lib/constants";
-import { ArrowLeft, Brain, Clock, Gavel, Swords } from "lucide-react";
+import { SOURCE_CODE_URL, WEBSITE_NAME, WEBSITE_URL } from "@/lib/constants";
+import { ArrowLeft, Brain, Clock, Gavel, Github, Swords } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 
@@ -155,6 +155,19 @@ export default function AboutPage() {
                             </p>
                         </FramePanel>
                     </Frame>
+                </div>
+
+                <div className="mt-20">
+                    <a
+                        className="group inline-flex items-center gap-2 font-mono text-muted-foreground text-xs uppercase tracking-widest transition-colors hover:text-foreground active:scale-[0.98]"
+                        href={SOURCE_CODE_URL}
+                        rel="noopener noreferrer"
+                        target="_blank"
+                    >
+                        <Github aria-hidden className="size-4" />
+                        View source on GitHub
+                        <span className="sr-only">(opens in a new tab)</span>
+                    </a>
                 </div>
 
                 <div className="mt-24 mb-8 flex items-center gap-2 opacity-40">

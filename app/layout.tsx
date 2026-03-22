@@ -4,6 +4,7 @@ import { ConvexClientProvider } from "@/components/convex-provider";
 import { clientEnv } from "@/env/client";
 import { cn } from "@/lib/cn";
 import {
+    SOURCE_CODE_URL,
     WEBSITE_DESCRIPTION,
     WEBSITE_KEYWORDS,
     WEBSITE_NAME,
@@ -159,10 +160,7 @@ const organizationJsonLd: WithContext<Organization> = {
     name: appName,
     url: siteUrl,
     logo: heroImage,
-    sameAs: [
-        "https://x.com/gsmmtt",
-        "https://github.com/rortan134/minutedebate",
-    ],
+    sameAs: ["https://x.com/gsmmtt", SOURCE_CODE_URL],
 };
 
 const brandJsonLd: WithContext<Brand> = {
