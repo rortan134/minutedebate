@@ -38,7 +38,7 @@ type MatchPhaseKey =
     | "judging"
     | "finished";
 
-type PhaseGuidance = {
+interface PhaseGuidance {
     readonly active: {
         readonly headline: string;
         readonly body: string;
@@ -47,7 +47,7 @@ type PhaseGuidance = {
         readonly headline: string;
         readonly body: string;
     };
-};
+}
 
 const DEFAULT_GUIDANCE: PhaseGuidance = {
     active: {

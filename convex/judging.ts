@@ -2,18 +2,15 @@ import { v } from "convex/values";
 import type { Id } from "./_generated/dataModel";
 import { internalMutation, internalQuery, query } from "./_generated/server";
 
-export type JudgeAxisScores = {
-    logic: number;
+interface JudgeAxisScores {
+    civility: number;
     evidence: number;
+    logic: number;
     relevance: number;
     rhetoricalClarity: number;
-    civility: number;
-};
+}
 
-export type JudgeVerdict = {
-    winner: "player1" | "player2" | "tie";
-    player1Scores: JudgeAxisScores;
-    player2Scores: JudgeAxisScores;
+export interface JudgeVerdict {
     explanation: string;
     namedMoves: Array<{
         id?: string;
@@ -21,7 +18,10 @@ export type JudgeVerdict = {
         move: string;
         description: string;
     }>;
-};
+    player1Scores: JudgeAxisScores;
+    player2Scores: JudgeAxisScores;
+    winner: "player1" | "player2" | "tie";
+}
 
 export const getMatchForJudging = internalQuery({
     args: {
