@@ -27,7 +27,7 @@ import { cn } from "@/lib/cn";
 import { useMutation, useQuery } from "convex/react";
 import { ArrowUpRight, CirclePlus, Hourglass, Info } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useRef, useState, useTransition } from "react";
+import { Suspense, useEffect, useRef, useState, useTransition } from "react";
 import { api } from "../convex/_generated/api";
 import { getDailyPack, TOPIC_PACKS } from "../convex/topic_packs";
 import { getOrCreatePlayerId } from "../lib/player-id";
@@ -70,9 +70,6 @@ function Lobby() {
             window.crypto?.randomUUID?.() ??
             `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;
     }
-
-    const dailyPack = getDailyPack();
-    const currentPackMetadata = TOPIC_PACKS[dailyPack];
 
     interface TickerAchievement {
         readonly achievementId: string;
@@ -261,32 +258,9 @@ function Lobby() {
                             )
                         )}
                     </div>
-                    {currentPackMetadata ? (
-                        <div className="mt-6 flex min-w-0 flex-col gap-1 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-2">
-                            <span className="shrink-0 font-semibold text-muted-foreground text-sm uppercase tracking-wide sm:text-base">
-                                Today&apos;s Category:
-                            </span>
-                            <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
-                                <span className="font-semibold text-foreground text-lg uppercase sm:text-xl">
-                                    {currentPackMetadata.name}
-                                </span>
-                                <Tooltip>
-                                    <TooltipTrigger>
-                                        <Info className="size-4 shrink-0 text-muted-foreground" />
-                                    </TooltipTrigger>
-                                    <TooltipPopup>
-                                        <p className="text-muted-foreground text-base">
-                                            All debates today will feature
-                                            topics from this category. The
-                                            category rotates daily, determining
-                                            which topics and achievements are
-                                            available.
-                                        </p>
-                                    </TooltipPopup>
-                                </Tooltip>
-                            </div>
-                        </div>
-                    ) : null}
+                    <Suspense fallback={<CurrentCategorySkeleton />}>
+                        <CurrentCategory />
+                    </Suspense>
                     {achievementsTicker.length > 0 ? (
                         <TooltipProvider>
                             <div className="mt-3 flex min-w-0 flex-col gap-2 rounded-2xl border border-border/50 bg-card/30 px-4 py-3 text-muted-foreground text-xs uppercase sm:flex-row sm:flex-wrap sm:items-center sm:rounded-full sm:py-2">
@@ -563,6 +537,62 @@ function Lobby() {
                 role="presentation"
             >
                 <Spinner className="scale-30" />
+            </div>
+        </div>
+    );
+}
+
+function CurrentCategorySkeleton() {
+    return (
+        <div
+            aria-busy="true"
+            aria-label="Loading today's category"
+            className="mt-6 flex min-w-0 flex-col gap-1 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-2"
+            role="status"
+        >
+            <div
+                aria-hidden
+                className="h-4 w-40 shrink-0 animate-pulse rounded-md bg-muted sm:h-5 sm:w-44"
+            />
+            <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
+                <div
+                    aria-hidden
+                    className="h-6 w-52 max-w-full animate-pulse rounded-md bg-muted sm:h-7 sm:w-64"
+                />
+                <div
+                    aria-hidden
+                    className="size-4 shrink-0 animate-pulse rounded-sm bg-muted"
+                />
+            </div>
+        </div>
+    );
+}
+
+function CurrentCategory() {
+    const [dailyPack] = useState(() => getDailyPack());
+    const currentPackMetadata = TOPIC_PACKS[dailyPack];
+
+    return (
+        <div className="mt-6 flex min-w-0 flex-col gap-1 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-2">
+            <span className="shrink-0 font-semibold text-muted-foreground text-sm uppercase tracking-wide sm:text-base">
+                Today&apos;s Category:
+            </span>
+            <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
+                <span className="font-semibold text-foreground text-lg uppercase sm:text-xl">
+                    {currentPackMetadata.name}
+                </span>
+                <Tooltip>
+                    <TooltipTrigger>
+                        <Info className="size-4 shrink-0 text-muted-foreground" />
+                    </TooltipTrigger>
+                    <TooltipPopup>
+                        <p className="text-muted-foreground text-base">
+                            All debates today will feature topics from this
+                            category. The category rotates daily, determining
+                            which topics and achievements are available.
+                        </p>
+                    </TooltipPopup>
+                </Tooltip>
             </div>
         </div>
     );
