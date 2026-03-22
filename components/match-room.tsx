@@ -392,7 +392,7 @@ function MatchRoom({ matchId, playerId: playerIdProp }: MatchRoomProps) {
     return (
         <div className="flex h-screen flex-col overflow-hidden bg-background text-foreground">
             {/* Header */}
-            <header className="flex-none border-b border-border/60 bg-card/20 px-4 py-4 backdrop-blur-sm sm:px-6">
+            <header className="flex-none border-border/60 border-b bg-card/20 px-4 py-4 backdrop-blur-sm sm:px-6">
                 <div className="flex items-start justify-between gap-4 sm:gap-6">
                     <div className="min-w-0 flex-1 space-y-1">
                         <div className="flex flex-wrap items-center gap-x-3 gap-y-1 uppercase tracking-widest">
@@ -410,10 +410,10 @@ function MatchRoom({ matchId, playerId: playerIdProp }: MatchRoomProps) {
                                 {formatTime(timeRemaining)}
                             </span>
                         </div>
-                        <p className="line-clamp-2 max-w-full text-foreground font-medium text-base sm:line-clamp-1 sm:max-w-md">
+                        <p className="line-clamp-2 max-w-full font-medium text-base text-foreground sm:line-clamp-1 sm:max-w-md">
                             "{match.topic}"
                         </p>
-                        <div className="pt-1 text-[10px] uppercase tracking-wider text-muted-foreground lg:hidden">
+                        <div className="pt-1 text-[10px] text-muted-foreground uppercase tracking-wider lg:hidden">
                             <span className="font-semibold text-foreground">
                                 You: {myStance}
                             </span>
@@ -463,7 +463,7 @@ function MatchRoom({ matchId, playerId: playerIdProp }: MatchRoomProps) {
                                     )}
                                     key={msg._id}
                                 >
-                                    <div className="flex items-center gap-2 text-muted-foreground text-[10px] uppercase tracking-wider">
+                                    <div className="flex items-center gap-2 text-[10px] text-muted-foreground uppercase tracking-wider">
                                         <span>
                                             {isMine ? "You" : "Opponent"}
                                         </span>
@@ -496,7 +496,7 @@ function MatchRoom({ matchId, playerId: playerIdProp }: MatchRoomProps) {
             </main>
             <footer
                 className={cn(
-                    "flex-none border-t border-border/60 bg-background p-4 transition-colors duration-500 sm:p-6",
+                    "flex-none border-border/60 border-t bg-background p-4 transition-colors duration-500 sm:p-6",
                     isMyTurn && "border-primary/30 bg-primary/5"
                 )}
             >
@@ -505,7 +505,7 @@ function MatchRoom({ matchId, playerId: playerIdProp }: MatchRoomProps) {
                         <div className="space-y-1">
                             <p
                                 className={cn(
-                                    "text-[10px] uppercase tracking-widest font-semibold",
+                                    "font-semibold text-[10px] uppercase tracking-widest",
                                     isMyTurn
                                         ? "text-primary"
                                         : "text-muted-foreground"
@@ -513,7 +513,7 @@ function MatchRoom({ matchId, playerId: playerIdProp }: MatchRoomProps) {
                             >
                                 {isMyTurn ? "Your Turn" : "Opponent's Turn"}
                             </p>
-                            <p className="line-clamp-2 text-xs text-muted-foreground lg:line-clamp-none">
+                            <p className="line-clamp-2 text-muted-foreground text-xs lg:line-clamp-none">
                                 {guidanceCopy.body}
                             </p>
                         </div>
@@ -523,7 +523,7 @@ function MatchRoom({ matchId, playerId: playerIdProp }: MatchRoomProps) {
                                 maxBudgetMs={PAUSE_BUDGET_CAP_MS}
                                 pauseBudgetMs={pauseBudget}
                             />
-                            <div className="flex items-center gap-3 text-[10px] uppercase tracking-wider text-muted-foreground">
+                            <div className="flex items-center gap-3 text-[10px] text-muted-foreground uppercase tracking-wider">
                                 <span>{input.length} chars</span>
                                 <span>{secondsRemaining}s left</span>
                             </div>
@@ -531,14 +531,14 @@ function MatchRoom({ matchId, playerId: playerIdProp }: MatchRoomProps) {
                     </div>
                     {isMyTurn && match.status === "active" ? (
                         <form
-                            className="relative group"
+                            className="group relative"
                             onSubmit={handleSubmit}
                         >
                             <TooltipProvider>
                                 <InputGroup className="w-full">
                                     <InputGroupTextarea
                                         autoFocus
-                                        className="min-h-[100px] max-h-[30vh] w-full resize-none border-border/60 bg-background p-4 font-mono text-sm rounded-none! focus:border-primary/50 focus:ring-0"
+                                        className="max-h-[30vh] min-h-[100px] w-full resize-none rounded-none! border-border/60 bg-background p-4 font-mono text-sm focus:border-primary/50 focus:ring-0"
                                         disabled={
                                             !isMyTurn || timeRemaining === 0
                                         }
@@ -558,7 +558,7 @@ function MatchRoom({ matchId, playerId: playerIdProp }: MatchRoomProps) {
                                     />
                                     <InputGroupAddon
                                         align="block-end"
-                                        className="absolute bottom-3 right-3 z-10"
+                                        className="absolute right-3 bottom-3 z-10"
                                     >
                                         <Tooltip>
                                             <TooltipTrigger
@@ -591,7 +591,7 @@ function MatchRoom({ matchId, playerId: playerIdProp }: MatchRoomProps) {
                             </TooltipProvider>
                         </form>
                     ) : (
-                        <div className="flex h-[100px] w-full items-center justify-center border border-dashed border-border/40 bg-card/10 text-xs uppercase tracking-wider text-muted-foreground">
+                        <div className="flex h-[100px] w-full items-center justify-center border border-border/40 border-dashed bg-card/10 text-muted-foreground text-xs uppercase tracking-wider">
                             <span>Opponent is typing...</span>
                         </div>
                     )}

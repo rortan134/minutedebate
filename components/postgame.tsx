@@ -41,11 +41,11 @@ function ScoreBar({ label, myScore, opponentScore }: ScoreBarProps) {
     const isBetter = myScore > opponentScore;
 
     return (
-        <div className="flex min-w-0 flex-col gap-2 border-b border-border/30 py-2 last:border-0 sm:flex-row sm:items-center sm:gap-3">
+        <div className="flex min-w-0 flex-col gap-2 border-border/30 border-b py-2 last:border-0 sm:flex-row sm:items-center sm:gap-3">
             <span className="w-full shrink-0 text-[10px] text-muted-foreground uppercase tracking-widest sm:w-24">
                 {label}
             </span>
-            <div className="flex min-w-0 h-1.5 flex-1 gap-0.5">
+            <div className="flex h-1.5 min-w-0 flex-1 gap-0.5">
                 <div className="min-w-0 flex-1 bg-muted/20">
                     <div
                         className={cn(
@@ -119,7 +119,7 @@ function Postgame({ matchId, playerId }: PostgameProps) {
     if (playerDoc === undefined || match === undefined) {
         return (
             <div className="flex h-screen items-center justify-center bg-background text-muted-foreground">
-                <div className="text-xs uppercase tracking-wider animate-pulse">
+                <div className="animate-pulse text-xs uppercase tracking-wider">
                     Loading results…
                 </div>
             </div>
@@ -134,7 +134,7 @@ function Postgame({ matchId, playerId }: PostgameProps) {
                         Match not found
                     </div>
                     <a
-                        className="inline-flex items-center justify-center border border-border/60 px-6 py-3 font-semibold text-xs uppercase tracking-[0.35em] text-foreground transition hover:bg-foreground hover:text-background"
+                        className="inline-flex items-center justify-center border border-border/60 px-6 py-3 font-semibold text-foreground text-xs uppercase tracking-[0.35em] transition hover:bg-foreground hover:text-background"
                         href="/"
                     >
                         Return to lobby
@@ -147,7 +147,7 @@ function Postgame({ matchId, playerId }: PostgameProps) {
     if (!match.verdict) {
         return (
             <div className="flex h-screen items-center justify-center bg-background text-muted-foreground">
-                <div className="text-xs uppercase tracking-wider animate-pulse">
+                <div className="animate-pulse text-xs uppercase tracking-wider">
                     Awaiting verdict…
                 </div>
             </div>
@@ -284,9 +284,9 @@ function Postgame({ matchId, playerId }: PostgameProps) {
     };
 
     return (
-        <div className="h-screen w-screen flex flex-col overflow-hidden bg-background text-foreground font-sans selection:bg-primary/20">
+        <div className="flex h-screen w-screen flex-col overflow-hidden bg-background font-sans text-foreground selection:bg-primary/20">
             {/* Header - Fixed Height */}
-            <header className="flex-none border-b border-border/60 bg-background px-4 py-4 sm:px-6 lg:px-8">
+            <header className="flex-none border-border/60 border-b bg-background px-4 py-4 sm:px-6 lg:px-8">
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                     <div className="min-w-0 space-y-1">
                         <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1 text-[10px] text-muted-foreground uppercase tracking-wide">
@@ -342,12 +342,12 @@ function Postgame({ matchId, playerId }: PostgameProps) {
                         </div>
                         <div className="flex flex-wrap items-center gap-2 sm:contents">
                             {joinError && (
-                                <span className="text-destructive text-xs uppercase tracking-wider animate-pulse">
+                                <span className="animate-pulse text-destructive text-xs uppercase tracking-wider">
                                     {joinError}
                                 </span>
                             )}
                             <a
-                                className="inline-flex text-xs text-muted-foreground uppercase tracking-wider decoration-1 underline-offset-4 transition-colors hover:text-foreground hover:underline sm:ml-2"
+                                className="inline-flex text-muted-foreground text-xs uppercase tracking-wider decoration-1 underline-offset-4 transition-colors hover:text-foreground hover:underline sm:ml-2"
                                 href="/"
                             >
                                 Lobby
@@ -358,10 +358,10 @@ function Postgame({ matchId, playerId }: PostgameProps) {
             </header>
 
             {/* Main Content - 3 Column Grid */}
-            <main className="flex-1 min-h-0 grid grid-cols-1 divide-y divide-border/60 lg:grid-cols-3 lg:divide-y-0 lg:divide-x">
+            <main className="grid min-h-0 flex-1 grid-cols-1 divide-y divide-border/60 lg:grid-cols-3 lg:divide-x lg:divide-y-0">
                 {/* Col 1: Metrics */}
-                <div className="flex flex-col min-h-0">
-                    <div className="flex-none border-b border-border/30 bg-muted/10 px-4 py-2 text-[10px] uppercase tracking-wider text-muted-foreground sm:px-6">
+                <div className="flex min-h-0 flex-col">
+                    <div className="flex-none border-border/30 border-b bg-muted/10 px-4 py-2 text-[10px] text-muted-foreground uppercase tracking-wider sm:px-6">
                         Performance Axis
                     </div>
                     <div className="flex-1 overflow-y-auto p-4 sm:p-6">
@@ -396,7 +396,7 @@ function Postgame({ matchId, playerId }: PostgameProps) {
                         {/* Named Moves */}
                         {match.verdict.namedMoves.length > 0 && (
                             <div className="mt-8 space-y-4">
-                                <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                                <div className="text-[10px] text-muted-foreground uppercase tracking-wider">
                                     Key Moves
                                 </div>
                                 <ul className="space-y-4">
@@ -409,24 +409,24 @@ function Postgame({ matchId, playerId }: PostgameProps) {
                                             : move.move.replace(/_/g, " ");
                                         return (
                                             <li
-                                                className="border-l-2 border-primary/40 pl-3"
+                                                className="border-primary/40 border-l-2 pl-3"
                                                 key={
                                                     move.id ??
                                                     `${move.move}-${move.player}-${move.goal}`
                                                 }
                                             >
                                                 <div className="flex justify-between">
-                                                    <span className="font-mono text-[10px] uppercase tracking-wider text-foreground">
+                                                    <span className="font-mono text-[10px] text-foreground uppercase tracking-wider">
                                                         {title}
                                                     </span>
-                                                    <span className="text-[9px] uppercase tracking-wide text-muted-foreground/70">
+                                                    <span className="text-[9px] text-muted-foreground/70 uppercase tracking-wide">
                                                         {move.player ===
                                                         perspective
                                                             ? "You"
                                                             : "Opp"}
                                                     </span>
                                                 </div>
-                                                <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">
+                                                <p className="mt-1 line-clamp-2 text-muted-foreground text-xs">
                                                     {move.description}
                                                 </p>
                                             </li>
@@ -439,13 +439,13 @@ function Postgame({ matchId, playerId }: PostgameProps) {
                 </div>
 
                 {/* Col 2: Verdict */}
-                <div className="flex flex-col min-h-0">
-                    <div className="flex-none border-b border-border/30 bg-muted/10 px-4 py-2 text-[10px] uppercase tracking-wider text-muted-foreground sm:px-6">
+                <div className="flex min-h-0 flex-col">
+                    <div className="flex-none border-border/30 border-b bg-muted/10 px-4 py-2 text-[10px] text-muted-foreground uppercase tracking-wider sm:px-6">
                         Judge Verdict
                     </div>
                     <div className="flex-1 overflow-y-auto p-4 sm:p-6">
                         <div className="prose prose-sm prose-invert max-w-none">
-                            <p className="whitespace-pre-wrap text-sm leading-loose text-muted-foreground">
+                            <p className="whitespace-pre-wrap text-muted-foreground text-sm leading-loose">
                                 {match.verdict.explanation}
                             </p>
                         </div>
@@ -453,15 +453,15 @@ function Postgame({ matchId, playerId }: PostgameProps) {
                 </div>
 
                 {/* Col 3: Meta/Rankings */}
-                <div className="flex flex-col min-h-0">
-                    <div className="flex-none border-b border-border/30 bg-muted/10 px-4 py-2 text-[10px] uppercase tracking-wider text-muted-foreground sm:px-6">
+                <div className="flex min-h-0 flex-col">
+                    <div className="flex-none border-border/30 border-b bg-muted/10 px-4 py-2 text-[10px] text-muted-foreground uppercase tracking-wider sm:px-6">
                         Pack Rankings
                     </div>
                     <div className="flex-1 overflow-y-auto p-0">
                         {/* Leaderboard */}
                         {leaderboard && leaderboard.length > 0 && (
                             <table className="w-full text-left text-xs">
-                                <thead className="sticky top-0 bg-background text-[9px] uppercase tracking-wider text-muted-foreground shadow-sm">
+                                <thead className="sticky top-0 bg-background text-[9px] text-muted-foreground uppercase tracking-wider shadow-sm">
                                     <tr>
                                         <th className="px-4 py-2 font-medium sm:px-6">
                                             #
@@ -504,8 +504,8 @@ function Postgame({ matchId, playerId }: PostgameProps) {
 
                         {/* Achievements */}
                         {hasNewAchievements && (
-                            <div className="border-t border-border/60 p-4 sm:p-6">
-                                <div className="mb-3 text-[10px] uppercase tracking-wider text-primary">
+                            <div className="border-border/60 border-t p-4 sm:p-6">
+                                <div className="mb-3 text-[10px] text-primary uppercase tracking-wider">
                                     Unlocked
                                 </div>
                                 <div className="grid gap-2">
@@ -522,7 +522,7 @@ function Postgame({ matchId, playerId }: PostgameProps) {
                                                     {meta.icon}
                                                 </span>
                                                 <div className="min-w-0">
-                                                    <h4 className="truncate font-bold text-[10px] uppercase tracking-wider text-primary">
+                                                    <h4 className="truncate font-bold text-[10px] text-primary uppercase tracking-wider">
                                                         {meta.title}
                                                     </h4>
                                                 </div>

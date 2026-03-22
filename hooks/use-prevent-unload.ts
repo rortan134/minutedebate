@@ -1,4 +1,4 @@
-import * as React from "react";
+import { useEffect } from "react";
 
 const handleBeforeUnload = (event: BeforeUnloadEvent) => {
     event.preventDefault();
@@ -9,7 +9,7 @@ const handleBeforeUnload = (event: BeforeUnloadEvent) => {
 };
 
 export const usePreventWindowUnload = (preventDefault: boolean) => {
-    React.useEffect(() => {
+    useEffect(() => {
         if (!preventDefault) {
             return;
         }

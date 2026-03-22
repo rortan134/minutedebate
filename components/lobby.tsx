@@ -227,7 +227,7 @@ function Lobby() {
             <div className="absolute bottom-1 left-1 z-20 h-8 w-8 border-border/90 border-b-2 border-l-2 lg:h-12 lg:w-12" />
             <div className="absolute right-1 bottom-1 z-20 h-8 w-8 border-border/90 border-r-2 border-b-2 lg:h-12 lg:w-12" />
             <main className="relative isolate grid size-full min-h-0 grid-cols-1 grid-rows-1 lg:grid-cols-12">
-                <div className="relative z-10 row-start-1 flex w-full min-w-0 max-w-lg flex-col gap-4 px-4 pt-8 sm:px-6 lg:col-span-4 lg:col-start-1 lg:max-w-lg lg:px-0 lg:pl-9 lg:pr-4">
+                <div className="relative z-10 row-start-1 flex w-full min-w-0 max-w-lg flex-col gap-4 px-4 pt-8 sm:px-6 lg:col-span-4 lg:col-start-1 lg:max-w-lg lg:px-0 lg:pr-4 lg:pl-9">
                     {/* Top decorative line */}
                     <div className="mb-2 flex items-center gap-2 opacity-60">
                         <div className="h-px w-8 bg-white" />
@@ -236,12 +236,12 @@ function Lobby() {
                         </span>
                         <div className="h-px flex-1 bg-white" />
                     </div>
-                    <div className="-ml-0.5 relative">
-                        <div className="-right-3 dither-pattern absolute top-0 bottom-0 hidden w-1 opacity-40 lg:block" />
+                    <div className="relative -ml-0.5">
+                        <div className="dither-pattern absolute top-0 -right-3 bottom-0 hidden w-1 opacity-40 lg:block" />
                         <h1 className="font-bold text-3xl text-foreground uppercase sm:text-4xl lg:text-5xl">
                             One minute. One topic. One winner.
                         </h1>
-                        <h2 className="mt-2 font-semibold text-muted-foreground text-base uppercase lg:text-xl">
+                        <h2 className="mt-2 font-semibold text-base text-muted-foreground uppercase lg:text-xl">
                             Put your debating skills to the test — Play now!
                         </h2>
                     </div>
@@ -299,7 +299,7 @@ function Lobby() {
                     ) : null}
                     <AnimateHeight>
                         <Frame>
-                            <FramePanel className="border-0! p-0! rounded-b-none!">
+                            <FramePanel className="rounded-b-none! border-0! p-0!">
                                 <div className="flex flex-col gap-3">
                                     {pendingMatchId ? (
                                         <div className="relative overflow-hidden rounded-2xl border border-border/60 bg-background/60 p-6 text-center shadow-lg">
@@ -317,7 +317,7 @@ function Lobby() {
                                         <StarBorder
                                             as="button"
                                             className={cn(
-                                                "relative transform-gpu w-full cursor-pointer overflow-hidden px-6 py-4 text-left font-semibold text-foreground text-lg uppercase transition-all duration-100 sm:text-xl disabled:cursor-not-allowed disabled:opacity-50",
+                                                "relative w-full transform-gpu cursor-pointer overflow-hidden px-6 py-4 text-left font-semibold text-foreground text-lg uppercase transition-all duration-100 disabled:cursor-not-allowed disabled:opacity-50 sm:text-xl",
                                                 {
                                                     "hover:scale-[1.01]": !(
                                                         isJoining ||
@@ -359,16 +359,16 @@ function Lobby() {
                                     {isPlayerQueued ? (
                                         <p className="text-foreground text-sm">
                                             Finding opponent...{" "}
-                                            <Hourglass className="size-3 inline-block mx-0.5" />
+                                            <Hourglass className="mx-0.5 inline-block size-3" />
                                             {queueElapsedSeconds}s
                                         </p>
                                     ) : resumeMatchHref ? (
                                         <a
-                                            className="group inline-flex relative w-full items-center gap-1 cursor-pointer font-semibold text-sm uppercase text-foreground transition-colors hover:text-primary active:text-primary/80 active:scale-[0.99] disabled:opacity-50"
+                                            className="group relative inline-flex w-full cursor-pointer items-center gap-1 font-semibold text-foreground text-sm uppercase transition-colors hover:text-primary active:scale-[0.99] active:text-primary/80 disabled:opacity-50"
                                             href={resumeMatchHref}
                                         >
                                             <span>{resumeMatchLabel}</span>
-                                            <ArrowUpRight className="size-4 inline-block transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                                            <ArrowUpRight className="inline-block size-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
                                         </a>
                                     ) : null}
                                 </FrameHeader>
@@ -379,11 +379,11 @@ function Lobby() {
                         <DialogTrigger
                             render={
                                 <button
-                                    className="w-full inline-flex items-center justify-between rounded-full bg-muted text-left backdrop-blur-xs px-5 py-3 cursor-pointer font-semibold text-muted-foreground text-sm uppercase tracking-widest transition-transform hover:text-foreground active:bg-muted/80 active:scale-[0.99]"
+                                    className="inline-flex w-full cursor-pointer items-center justify-between rounded-full bg-muted px-5 py-3 text-left font-semibold text-muted-foreground text-sm uppercase tracking-widest backdrop-blur-xs transition-transform hover:text-foreground active:scale-[0.99] active:bg-muted/80"
                                     type="button"
                                 >
                                     <span>How To Play</span>
-                                    <CirclePlus className="size-4 inline-block" />
+                                    <CirclePlus className="inline-block size-4" />
                                 </button>
                             }
                         />
@@ -404,10 +404,10 @@ function Lobby() {
                             <div className="space-y-4">
                                 <div className="space-y-3">
                                     <div>
-                                        <h3 className="mb-2 font-semibold text-foreground text-base uppercase">
+                                        <h3 className="mb-2 font-semibold text-base text-foreground uppercase">
                                             Oxford Cadence Format
                                         </h3>
-                                        <p className="text-muted-foreground text-base leading-relaxed">
+                                        <p className="text-base text-muted-foreground leading-relaxed">
                                             Each match follows a strict timing
                                             structure: 15-second opening
                                             statements for each player, followed
@@ -419,10 +419,10 @@ function Lobby() {
                                         </p>
                                     </div>
                                     <div>
-                                        <h3 className="mb-2 font-semibold text-foreground text-base uppercase">
+                                        <h3 className="mb-2 font-semibold text-base text-foreground uppercase">
                                             AI Judge Evaluation
                                         </h3>
-                                        <p className="text-muted-foreground text-base leading-relaxed">
+                                        <p className="text-base text-muted-foreground leading-relaxed">
                                             An AI judge analyzes your entire
                                             debate across five axes: logic
                                             (soundness of reasoning), evidence
@@ -436,10 +436,10 @@ function Lobby() {
                                         </p>
                                     </div>
                                     <div>
-                                        <h3 className="mb-2 font-semibold text-foreground text-base uppercase">
+                                        <h3 className="mb-2 font-semibold text-base text-foreground uppercase">
                                             Winning Strategy
                                         </h3>
-                                        <p className="text-muted-foreground text-base leading-relaxed">
+                                        <p className="text-base text-muted-foreground leading-relaxed">
                                             Victory comes from maintaining a
                                             clear throughline, making sharp
                                             distinctions early, and responding
@@ -482,7 +482,7 @@ function Lobby() {
                                 <DialogClose
                                     render={
                                         <button
-                                            className="rounded-full border border-border/50 px-4 py-2 text-muted-foreground text-xs uppercase transition-colors hover:bg-background/60 hover:text-foreground hover:border-border active:bg-background/80 active:scale-[0.96]"
+                                            className="rounded-full border border-border/50 px-4 py-2 text-muted-foreground text-xs uppercase transition-colors hover:border-border hover:bg-background/60 hover:text-foreground active:scale-[0.96] active:bg-background/80"
                                             type="button"
                                         >
                                             Close
@@ -500,7 +500,7 @@ function Lobby() {
                         <div className="h-px flex-1 bg-foreground" />
                         <span className="font-mono text-[9px] text-foreground uppercase">
                             <Link
-                                className="transition-colors hover:underline hover:text-primary active:text-primary/80 active:scale-[0.98]"
+                                className="transition-colors hover:text-primary hover:underline active:scale-[0.98] active:text-primary/80"
                                 href="/about"
                             >
                                 About
@@ -511,7 +511,7 @@ function Lobby() {
                         </span>
                         <span className="font-mono text-[9px] text-foreground uppercase">
                             <a
-                                className="transition-colors hover:underline hover:text-primary active:text-primary/80 active:scale-[0.98]"
+                                className="transition-colors hover:text-primary hover:underline active:scale-[0.98] active:text-primary/80"
                                 href="https://minutedebate.com"
                             >
                                 minutedebate.com
@@ -520,7 +520,7 @@ function Lobby() {
                     </div>
                 </div>
                 <div
-                    className="fade-mask fade-left-1/4 pointer-events-none absolute inset-0 -z-10 select-none lg:relative lg:col-span-9 lg:col-start-4 lg:row-start-1 lg:inset-auto lg:z-auto"
+                    className="fade-mask fade-left-1/4 pointer-events-none absolute inset-0 -z-10 select-none lg:relative lg:inset-auto lg:z-auto lg:col-span-9 lg:col-start-4 lg:row-start-1"
                     role="presentation"
                 >
                     <AsciiOne />
@@ -586,7 +586,7 @@ function CurrentCategory() {
                         <Info className="size-4 shrink-0 text-muted-foreground" />
                     </TooltipTrigger>
                     <TooltipPopup>
-                        <p className="text-muted-foreground text-base">
+                        <p className="text-base text-muted-foreground">
                             All debates today will feature topics from this
                             category. The category rotates daily, determining
                             which topics and achievements are available.

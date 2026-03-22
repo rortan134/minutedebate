@@ -1,18 +1,17 @@
 "use client";
 
+import { useAutoResizeTextArea } from "@/hooks/use-textarea-autoresize";
+import { cn } from "@/lib/cn";
 import { Field as FieldPrimitive } from "@base-ui/react/field";
 import { mergeProps } from "@base-ui/react/merge-props";
 import { useComposedRefs } from "motion/react";
 import type * as React from "react";
 
-import { useAutoResizeTextArea } from "@/hooks/use-textarea-autoresize";
-import { cn } from "@/lib/cn";
-
-type TextareaProps = React.ComponentProps<"textarea"> & {
+interface TextareaProps extends React.ComponentProps<"textarea"> {
+    maxHeight?: number;
     size?: "sm" | "default" | "lg" | number;
     unstyled?: boolean;
-    maxHeight?: number;
-};
+}
 
 function Textarea({
     className,

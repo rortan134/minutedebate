@@ -108,7 +108,7 @@ export function AsciiOne() {
 
     return (
         <div
-            className="-bottom-[10%] absolute inset-0 select-none"
+            className="absolute inset-0 -bottom-[10%] select-none"
             data-us-project="og2tZllnlZ4VuxUlHYwy"
         />
     );

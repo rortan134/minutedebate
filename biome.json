@@ -31,13 +31,8 @@
     },
     "linter": {
         "rules": {
-            "recommended": true,
             "style": {
-                "noNestedTernary": "off",
-                "useConsistentTypeDefinitions": "off"
-            },
-            "nursery": {
-                "useSortedClasses": "off"
+                "noNestedTernary": "off"
             },
             "complexity": {
                 "noExcessiveCognitiveComplexity": "off"

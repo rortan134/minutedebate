@@ -44,8 +44,8 @@ export default function AboutPage() {
                     Return to Lobby
                 </Link>
 
-                <div className="-ml-0.5 relative mb-16">
-                    <div className="-left-6 dither-pattern absolute top-0 bottom-0 hidden w-2 opacity-40 lg:block" />
+                <div className="relative mb-16 -ml-0.5">
+                    <div className="dither-pattern absolute top-0 bottom-0 -left-6 hidden w-2 opacity-40 lg:block" />
                     <h1 className="font-bold text-4xl text-foreground uppercase sm:text-5xl lg:text-6xl">
                         Intellectual Combat.
                         <br />
@@ -53,7 +53,7 @@ export default function AboutPage() {
                             Distilled.
                         </span>
                     </h1>
-                    <p className="mt-6 max-w-2xl font-semibold text-muted-foreground text-lg uppercase leading-relaxed lg:text-xl">
+                    <p className="mt-6 max-w-2xl font-semibold text-lg text-muted-foreground uppercase leading-relaxed lg:text-xl">
                         Skip the week-long comment thread. You get a topic, a
                         side, a stranger, and one minute on the clock.
                     </p>
