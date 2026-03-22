@@ -1,0 +1,10 @@
+html,
+body {
+    height: 100%;
+    overflow: auto;
+}
+
+.about-bento {
+    grid-auto-rows: minmax(0, auto);
+    align-items: stretch;
+}

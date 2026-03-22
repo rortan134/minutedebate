@@ -26,13 +26,10 @@ import { getAchievementMeta } from "@/lib/achievements-meta";
 import { cn } from "@/lib/cn";
 import { useMutation, useQuery } from "convex/react";
 import { ArrowUpRight, CirclePlus, Hourglass, Info } from "lucide-react";
+import Link from "next/link";
 import { useEffect, useRef, useState, useTransition } from "react";
 import { api } from "../convex/_generated/api";
-import {
-    getDailyPack,
-    TOPIC_PACKS,
-    type TopicPack,
-} from "../convex/topic_packs";
+import { getDailyPack, TOPIC_PACKS } from "../convex/topic_packs";
 import { getOrCreatePlayerId } from "../lib/player-id";
 import { useNow } from "../lib/use-now";
 import StarBorder from "./ui/star-border";
@@ -74,21 +71,17 @@ function Lobby() {
             `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;
     }
 
-    const [dailyPack, setDailyPack] = useState<TopicPack | null>(null);
+    const dailyPack = getDailyPack();
+    const currentPackMetadata = TOPIC_PACKS[dailyPack];
 
-    useEffect(() => {
-        setDailyPack(getDailyPack());
-    }, []);
-
-    const packInfo = dailyPack ? TOPIC_PACKS[dailyPack] : null;
-    type TickerAchievement = {
+    interface TickerAchievement {
         readonly achievementId: string;
         readonly unlockedAt: number;
-    };
+    }
 
     const achievementsTicker: TickerAchievement[] = achievements?.recent
         ? achievements.recent
-              .slice(0, 4)
+              .slice(0, 3)
               .map(({ achievementId, unlockedAt }) => ({
                   achievementId,
                   unlockedAt,
@@ -96,9 +89,9 @@ function Lobby() {
         : [];
     const totalAchievements = achievements?.totalUnlocked ?? 0;
 
-    const isQueued = playerMatch?.status === "waiting";
+    const isPlayerQueued = playerMatch?.status === "waiting";
 
-    const resumeHref =
+    const resumeMatchHref =
         playerMatch?.status === "active"
             ? `/match/${playerMatch.matchId}`
             : playerMatch?.status === "completed" ||
@@ -106,13 +99,13 @@ function Lobby() {
               ? `/match/${playerMatch.matchId}/results`
               : null;
 
-    const resumeLabel =
+    const resumeMatchLabel =
         playerMatch?.status === "active"
             ? "Enter Match"
             : "View Last Match Results";
 
-    const waitingSeconds =
-        isQueued && queueStartedAt
+    const queueElapsedSeconds =
+        isPlayerQueued && queueStartedAt
             ? Math.max(0, Math.floor((now - queueStartedAt) / 1000))
             : 0;
 
@@ -121,7 +114,7 @@ function Lobby() {
             return;
         }
 
-        if (!isQueued) {
+        if (!isPlayerQueued) {
             if (localStorage.getItem(QUEUE_OWNER_KEY) === tabIdRef.current) {
                 localStorage.removeItem(QUEUE_OWNER_KEY);
             }
@@ -151,7 +144,7 @@ function Lobby() {
         if (!localStorage.getItem(QUEUE_OWNER_KEY) && tabIdRef.current) {
             localStorage.setItem(QUEUE_OWNER_KEY, tabIdRef.current);
         }
-    }, [isQueued, playerMatch?.queuedAt, queueStartedAt]);
+    }, [isPlayerQueued, playerMatch?.queuedAt, queueStartedAt]);
 
     useInterval(
         () => {
@@ -167,7 +160,7 @@ function Lobby() {
     }, [countdown, pendingMatchId]);
 
     const handleJoinQueue = () => {
-        if (isQueued || playerMatch?.status === "active") {
+        if (isPlayerQueued || playerMatch?.status === "active") {
             return;
         }
 
@@ -209,7 +202,7 @@ function Lobby() {
     };
 
     const handleLeaveQueue = () => {
-        if (!isQueued) {
+        if (!isPlayerQueued) {
             return;
         }
         startTransition(async () => {
@@ -258,7 +251,6 @@ function Lobby() {
                     <span className="-mt-1 font-mono text-[8px] text-foreground/60 lg:text-[10px]">
                         EST. 2026
                     </span>
-                    {/* Decorative dots pattern - desktop only */}
                     <div className="-mt-3 hidden gap-1 opacity-40 lg:flex">
                         {Array.from({ length: 40 }, (_, i) => `dot-${i}`).map(
                             (dotId) => (
@@ -269,14 +261,14 @@ function Lobby() {
                             )
                         )}
                     </div>
-                    {packInfo ? (
+                    {currentPackMetadata ? (
                         <div className="mt-6 flex min-w-0 flex-col gap-1 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-2">
                             <span className="shrink-0 font-semibold text-muted-foreground text-sm uppercase tracking-wide sm:text-base">
                                 Today&apos;s Category:
                             </span>
                             <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
                                 <span className="font-semibold text-foreground text-lg uppercase sm:text-xl">
-                                    {packInfo.name}
+                                    {currentPackMetadata.name}
                                 </span>
                                 <Tooltip>
                                     <TooltipTrigger>
@@ -313,7 +305,7 @@ function Lobby() {
                                                 >
                                                     <TooltipTrigger className="inline-flex cursor-help items-center gap-1 rounded-full bg-background/60 px-3 py-1 text-foreground transition-colors hover:bg-background/80 active:scale-[0.95] active:bg-background">
                                                         <span>{meta.icon}</span>
-                                                        <span className="max-w-[12rem] truncate sm:max-w-none">
+                                                        <span className="max-w-48 truncate sm:max-w-none">
                                                             {meta.title}
                                                         </span>
                                                     </TooltipTrigger>
@@ -354,13 +346,14 @@ function Lobby() {
                                                 "relative transform-gpu w-full cursor-pointer overflow-hidden px-6 py-4 text-left font-semibold text-foreground text-lg uppercase transition-all duration-100 sm:text-xl disabled:cursor-not-allowed disabled:opacity-50",
                                                 {
                                                     "hover:scale-[1.01]": !(
-                                                        isJoining || isQueued
+                                                        isJoining ||
+                                                        isPlayerQueued
                                                     ),
                                                 }
                                             )}
                                             disabled={isJoining}
                                             onClick={
-                                                isQueued
+                                                isPlayerQueued
                                                     ? handleLeaveQueue
                                                     : handleJoinQueue
                                             }
@@ -368,38 +361,39 @@ function Lobby() {
                                         >
                                             <span className="flex flex-col">
                                                 <span className="text-base">
-                                                    {isJoining || isQueued
+                                                    {isJoining || isPlayerQueued
                                                         ? "Quit Matchmaking"
                                                         : "Play"}
                                                 </span>
                                                 {isJoining ||
-                                                isQueued ? null : (
+                                                isPlayerQueued ? null : (
                                                     <span>
                                                         Oxford Mode • Join Queue
                                                     </span>
                                                 )}
                                             </span>
-                                            {isJoining || isQueued ? null : (
+                                            {isJoining ||
+                                            isPlayerQueued ? null : (
                                                 <div className="animate-shine" />
                                             )}
                                         </StarBorder>
                                     )}
                                 </div>
                             </FramePanel>
-                            {isQueued || resumeHref ? (
+                            {isPlayerQueued || resumeMatchHref ? (
                                 <FrameHeader>
-                                    {isQueued ? (
+                                    {isPlayerQueued ? (
                                         <p className="text-foreground text-sm">
                                             Finding opponent...{" "}
                                             <Hourglass className="size-3 inline-block mx-0.5" />
-                                            {waitingSeconds}s
+                                            {queueElapsedSeconds}s
                                         </p>
-                                    ) : resumeHref ? (
+                                    ) : resumeMatchHref ? (
                                         <a
                                             className="group inline-flex relative w-full items-center gap-1 cursor-pointer font-semibold text-sm uppercase text-foreground transition-colors hover:text-primary active:text-primary/80 active:scale-[0.99] disabled:opacity-50"
-                                            href={resumeHref}
+                                            href={resumeMatchHref}
                                         >
-                                            <span>{resumeLabel}</span>
+                                            <span>{resumeMatchLabel}</span>
                                             <ArrowUpRight className="size-4 inline-block transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
                                         </a>
                                     ) : null}
@@ -415,7 +409,7 @@ function Lobby() {
                                     type="button"
                                 >
                                     <span>How To Play</span>
-                                    <CirclePlus className="size-3.5 inline-block" />
+                                    <CirclePlus className="size-4 inline-block" />
                                 </button>
                             }
                         />
@@ -484,6 +478,32 @@ function Lobby() {
                                     </div>
                                 </div>
                             </div>
+                            <div className="mt-4 border-border/40 border-t pt-4">
+                                <Link
+                                    className={cn(
+                                        "group flex w-full items-center justify-between gap-4 rounded-2xl border border-border/50 bg-card/20 px-5 py-4 text-left outline-none ring-offset-popover transition-[border-color,background-color,box-shadow,transform]",
+                                        "hover:border-border hover:bg-card/45 hover:shadow-[0_8px_30px_-12px_rgba(0,0,0,0.35)]",
+                                        "focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+                                        "active:scale-[0.99]"
+                                    )}
+                                    href="/about"
+                                >
+                                    <span className="min-w-0 flex-1">
+                                        <span className="block font-semibold text-foreground text-sm uppercase tracking-wide">
+                                            More about MinuteDebate
+                                        </span>
+                                        <span className="block text-muted-foreground text-xs leading-snug">
+                                            Learn more
+                                        </span>
+                                    </span>
+                                    <span
+                                        aria-hidden
+                                        className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-border/60 bg-background/35 text-muted-foreground transition-[color,transform,border-color] group-hover:border-border group-hover:text-foreground"
+                                    >
+                                        <ArrowUpRight className="size-5" />
+                                    </span>
+                                </Link>
+                            </div>
                             <DialogFooter>
                                 <DialogClose
                                     render={
@@ -505,6 +525,17 @@ function Lobby() {
                         </span>
                         <div className="h-px flex-1 bg-foreground" />
                         <span className="font-mono text-[9px] text-foreground uppercase">
+                            <Link
+                                className="transition-colors hover:underline hover:text-primary active:text-primary/80 active:scale-[0.98]"
+                                href="/about"
+                            >
+                                About
+                            </Link>
+                        </span>
+                        <span className="font-mono text-[9px] text-foreground">
+                            •
+                        </span>
+                        <span className="font-mono text-[9px] text-foreground uppercase">
                             <a
                                 className="transition-colors hover:underline hover:text-primary active:text-primary/80 active:scale-[0.98]"
                                 href="https://minutedebate.com"
@@ -524,7 +555,10 @@ function Lobby() {
             <div
                 className={cn(
                     "pointer-events-none absolute right-5 bottom-5 z-30 rounded-full transition-opacity",
-                    { "opacity-0": !isQueued || isJoining || pendingMatchId }
+                    {
+                        "opacity-0":
+                            !isPlayerQueued || isJoining || pendingMatchId,
+                    }
                 )}
                 role="presentation"
             >

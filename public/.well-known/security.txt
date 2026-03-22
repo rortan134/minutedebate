@@ -1,0 +1,4 @@
+# MinuteDebate — vulnerability disclosure (RFC 9116)
+Preferred-Languages: en
+Expires: 2027-03-22T23:59:59.000Z
+Canonical: https://minutedebate.com/.well-known/security.txt
